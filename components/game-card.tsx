@@ -88,7 +88,7 @@ export function GameCard({ game }: { game: Game }) {
               Sign in required
             </span>
           ) : (
-            <Link href={`/play/${game.id}`}>
+            <Link href={`/games/${game.id}`}>
               <Play className="h-4 w-4" />
               Play Now
             </Link>
