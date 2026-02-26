@@ -13,7 +13,9 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { ArrowLeft, Lock, LogIn, Clock, Users, Star } from "lucide-react"
+import { toast } from "sonner"
 
 export default function GamePlayPage({
   params,
@@ -21,9 +23,29 @@ export default function GamePlayPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = use(params)
-  const { user, isGuest } = useAuth()
+  const { user, isGuest, addGameScore } = useAuth()
+  const router = useRouter()
   const game = getGameById(id)
   const category = game ? getCategoryById(game.category) : null
+
+  const handleGameComplete = (score: number, maxScore: number) => {
+    const stars = Math.ceil((score / maxScore) * 5)
+    if (game && user) {
+      addGameScore({
+        gameId: game.id,
+        gameName: game.name,
+        category: game.category,
+        score,
+        maxScore,
+        rating: stars,
+        completedAt: new Date().toISOString(),
+        ageGroup: user.ageGroup,
+      })
+    }
+    toast.success(`Great job! You scored ${score}/${maxScore}`, {
+      description: `You earned ${stars} star${stars !== 1 ? 's' : ''}!`,
+    })
+  }
 
   if (!game) {
     return (
@@ -118,17 +140,17 @@ export default function GamePlayPage({
   function renderGame() {
     switch (game!.category) {
       case "math":
-        return <MathGame game={game!} />
+        return <MathGame game={game!} onComplete={handleGameComplete} />
       case "science":
       case "identification":
       case "iq":
-        return <ScienceGame game={game!} />
+        return <ScienceGame game={game!} onComplete={handleGameComplete} />
       case "language":
-        return <WordGame game={game!} />
+        return <WordGame game={game!} onComplete={handleGameComplete} />
       case "coding":
-        return <CodingGame game={game!} />
+        return <CodingGame game={game!} onComplete={handleGameComplete} />
       default:
-        return <MathGame game={game!} />
+        return <MathGame game={game!} onComplete={handleGameComplete} />
     }
   }
 
