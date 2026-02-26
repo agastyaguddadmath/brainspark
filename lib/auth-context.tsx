@@ -64,6 +64,43 @@ const GUEST_TIME_LIMIT = 15 * 60
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+const STORAGE_KEY = "brainspark_users"
+const CURRENT_USER_KEY = "brainspark_current_user"
+
+function getStoredUsers(): Record<string, { password: string; profile: UserProfile }> {
+  if (typeof window === "undefined") return {}
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    return stored ? JSON.parse(stored) : {}
+  } catch {
+    return {}
+  }
+}
+
+function saveUsers(users: Record<string, { password: string; profile: UserProfile }>) {
+  if (typeof window === "undefined") return
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(users))
+}
+
+function saveCurrentUser(user: UserProfile | null) {
+  if (typeof window === "undefined") return
+  if (user) {
+    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user))
+  } else {
+    localStorage.removeItem(CURRENT_USER_KEY)
+  }
+}
+
+function getCurrentUser(): UserProfile | null {
+  if (typeof window === "undefined") return null
+  try {
+    const stored = localStorage.getItem(CURRENT_USER_KEY)
+    return stored ? JSON.parse(stored) : null
+  } catch {
+    return null
+  }
+}
+
 const demoUsers: Record<string, { password: string; profile: UserProfile }> = {
   "parent@brainspark.com": {
     password: "parent123",
@@ -76,7 +113,7 @@ const demoUsers: Record<string, { password: string; profile: UserProfile }> = {
       avatar: "SJ",
       parentalControls: {
         maxDailyMinutes: 60,
-        allowedCategories: ["math", "science", "language", "coding", "identification"],
+        allowedCategories: ["math", "science", "language", "coding", "identification", "art", "music", "geography", "iq"],
         restrictedGames: [],
       },
       gameHistory: [
@@ -103,7 +140,7 @@ const demoUsers: Record<string, { password: string; profile: UserProfile }> = {
       avatar: "AJ",
       parentalControls: {
         maxDailyMinutes: 60,
-        allowedCategories: ["math", "science", "language", "coding", "identification"],
+        allowedCategories: ["math", "science", "language", "coding", "identification", "art", "music", "geography", "iq"],
         restrictedGames: [],
       },
       gameHistory: [
@@ -123,6 +160,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null)
   const [isGuest, setIsGuest] = useState(false)
   const [guestTimeRemaining, setGuestTimeRemaining] = useState(GUEST_TIME_LIMIT)
+  const [isInitialized, setIsInitialized] = useState(false)
+
+  // Restore session on mount
+  useEffect(() => {
+    const savedUser = getCurrentUser()
+    if (savedUser && savedUser.role !== "guest") {
+      setUser(savedUser)
+    }
+    setIsInitialized(true)
+  }, [])
+
+  // Save user changes to storage
+  useEffect(() => {
+    if (isInitialized && user && !isGuest) {
+      saveCurrentUser(user)
+    }
+  }, [user, isGuest, isInitialized])
 
   useEffect(() => {
     if (!isGuest || guestTimeRemaining <= 0) return
@@ -139,17 +193,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(interval)
   }, [isGuest, guestTimeRemaining])
 
-  const login = useCallback(async (email: string, _password: string): Promise<boolean> => {
+  const login = useCallback(async (email: string, password: string): Promise<boolean> => {
+    // Check demo users first
     const demoUser = demoUsers[email]
-    if (demoUser) {
+    if (demoUser && demoUser.password === password) {
       setUser(demoUser.profile)
       setIsGuest(false)
+      saveCurrentUser(demoUser.profile)
       return true
     }
+    
+    // Check stored users
+    const storedUsers = getStoredUsers()
+    const storedUser = storedUsers[email]
+    if (storedUser && storedUser.password === password) {
+      setUser(storedUser.profile)
+      setIsGuest(false)
+      saveCurrentUser(storedUser.profile)
+      return true
+    }
+    
     return false
   }, [])
 
   const signUp = useCallback(async (data: SignUpData): Promise<boolean> => {
+    // Check if email already exists
+    const storedUsers = getStoredUsers()
+    if (storedUsers[data.email] || demoUsers[data.email]) {
+      return false // Email already in use
+    }
+    
     const newUser: UserProfile = {
       id: `usr_${Date.now()}`,
       name: data.name,
@@ -159,7 +232,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       avatar: data.name.split(" ").map((n) => n[0]).join("").toUpperCase(),
       parentalControls: {
         maxDailyMinutes: 60,
-        allowedCategories: ["math", "science", "language", "coding", "identification"],
+        allowedCategories: ["math", "science", "language", "coding", "identification", "art", "music", "geography", "iq"],
         restrictedGames: [],
       },
       gameHistory: [],
@@ -168,8 +241,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       streakDays: 0,
       joinedAt: new Date().toISOString(),
     }
+    
+    // Store the new user
+    storedUsers[data.email] = {
+      password: data.password,
+      profile: newUser,
+    }
+    saveUsers(storedUsers)
+    
+    // Set as current user
     setUser(newUser)
     setIsGuest(false)
+    saveCurrentUser(newUser)
     return true
   }, [])
 
@@ -200,6 +283,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
     setIsGuest(false)
     setGuestTimeRemaining(GUEST_TIME_LIMIT)
+    saveCurrentUser(null)
   }, [])
 
   const updateProfile = useCallback((updates: Partial<UserProfile>) => {

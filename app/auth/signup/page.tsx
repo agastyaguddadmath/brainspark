@@ -25,13 +25,24 @@ export default function SignUpPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    
+    if (!name.trim() || !email.trim() || password.length < 6) {
+      toast.error("Please fill in all fields correctly")
+      return
+    }
+    
     setLoading(true)
-    const success = await signUp({ name, email, password, role, ageGroup })
-    setLoading(false)
-    if (success) {
-      toast.success("Account created! Welcome to BrainSpark!")
-      router.push("/games")
-    } else {
+    try {
+      const success = await signUp({ name, email, password, role, ageGroup })
+      setLoading(false)
+      if (success) {
+        toast.success("Account created! Welcome to BrainSpark!")
+        router.push("/games")
+      } else {
+        toast.error("Email already in use. Try signing in instead.")
+      }
+    } catch (error) {
+      setLoading(false)
       toast.error("Something went wrong. Please try again.")
     }
   }
