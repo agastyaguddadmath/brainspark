@@ -138,7 +138,9 @@ export function GeographyGame({ game, onComplete }: GeographyGameProps) {
   const nextQuestion = () => {
     if (currentIndex + 1 >= totalQuestions) {
       setGameState("complete")
-      onComplete(score, game.maxScore)
+      // Score is already updated, use it directly
+      const finalScore = Math.min(score, game.maxScore)
+      onComplete(finalScore, game.maxScore)
     } else {
       setCurrentIndex(prev => prev + 1)
       setSelectedAnswer(null)

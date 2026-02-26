@@ -122,12 +122,16 @@ export function MathGame({ game, onComplete }: MathGameProps) {
 
   useEffect(() => {
     if (finished) {
-      onComplete(score, totalQuestions * 10)
+      const maxScore = totalQuestions * 10
+      const finalScore = Math.min(score, maxScore) // Cap score at max
+      onComplete(finalScore, maxScore)
     }
   }, [finished, score, onComplete])
 
   if (finished) {
-    const percentage = Math.round((score / (totalQuestions * 10)) * 100)
+    const maxScore = totalQuestions * 10
+    const displayScore = Math.min(score, maxScore)
+    const percentage = Math.min(Math.round((score / maxScore) * 100), 100)
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
@@ -137,7 +141,7 @@ export function MathGame({ game, onComplete }: MathGameProps) {
           {percentage >= 80 ? "Outstanding!" : percentage >= 50 ? "Good Job!" : "Keep Practicing!"}
         </h2>
         <p className="mt-2 text-lg text-muted-foreground">
-          You scored {score} out of {totalQuestions * 10} points
+          You scored {displayScore} out of {maxScore} points
         </p>
         <div className="mt-6 flex items-center gap-4">
           <div className="rounded-xl bg-secondary p-4 text-center">
@@ -145,7 +149,7 @@ export function MathGame({ game, onComplete }: MathGameProps) {
             <div className="text-xs text-muted-foreground">Accuracy</div>
           </div>
           <div className="rounded-xl bg-secondary p-4 text-center">
-            <div className="text-2xl font-bold text-foreground">{score}</div>
+            <div className="text-2xl font-bold text-foreground">{displayScore}</div>
             <div className="text-xs text-muted-foreground">Points</div>
           </div>
           <div className="rounded-xl bg-secondary p-4 text-center">

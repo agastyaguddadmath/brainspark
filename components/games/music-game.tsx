@@ -95,7 +95,7 @@ export function MusicGame({ game, onComplete }: MusicGameProps) {
         setRoundsCompleted(prev => prev + 1)
         if (round >= 3) {
           // Game complete
-          const finalScore = Math.max(0, score + 10 - (mistakes * 5))
+          const finalScore = Math.min(Math.max(0, score + 10 - (mistakes * 5)), game.maxScore)
           setGameState("complete")
           onComplete(finalScore, game.maxScore)
         } else {

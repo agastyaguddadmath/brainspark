@@ -120,7 +120,8 @@ export function ArtGame({ game, onComplete }: ArtGameProps) {
     const strokeScore = Math.min(strokes / 50, 1) * 50
     const colorScore = Math.min(colorsUsed.size / 4, 1) * 30
     const completionBonus = 20
-    const totalScore = Math.round(strokeScore + colorScore + completionBonus)
+    const calculatedScore = Math.round(strokeScore + colorScore + completionBonus)
+    const totalScore = Math.min(calculatedScore, game.maxScore)
     
     setIsCompleted(true)
     onComplete(totalScore, game.maxScore)
