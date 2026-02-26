@@ -9,6 +9,9 @@ import { MathGame } from "@/components/games/math-game"
 import { ScienceGame } from "@/components/games/science-game"
 import { WordGame } from "@/components/games/word-game"
 import { CodingGame } from "@/components/games/coding-game"
+import { ArtGame } from "@/components/games/art-game"
+import { MusicGame } from "@/components/games/music-game"
+import { GeographyGame } from "@/components/games/geography-game"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
@@ -149,6 +152,12 @@ export default function GamePlayPage({
         return <WordGame game={game!} onComplete={handleGameComplete} />
       case "coding":
         return <CodingGame game={game!} onComplete={handleGameComplete} />
+      case "art":
+        return <ArtGame game={game!} onComplete={handleGameComplete} />
+      case "music":
+        return <MusicGame game={game!} onComplete={handleGameComplete} />
+      case "geography":
+        return <GeographyGame game={game!} onComplete={handleGameComplete} />
       default:
         return <MathGame game={game!} onComplete={handleGameComplete} />
     }
