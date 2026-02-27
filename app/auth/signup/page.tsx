@@ -58,12 +58,27 @@ export default function SignUpPage() {
         </Link>
         <div>
           <h2 className="max-w-md text-3xl font-bold leading-tight text-accent-foreground">
-            Start your child's learning journey today.
+            Create Your BrainSpark Account
           </h2>
           <p className="mt-4 max-w-md text-accent-foreground/70">
-            Create a free account and unlock full access to all educational
-            games, progress tracking, and parental controls.
+            Join thousands of families making learning fun. Your free BrainSpark 
+            account gives you access to all educational games, progress tracking, 
+            IQ assessments, and parental controls.
           </p>
+          <ul className="mt-6 space-y-2 text-accent-foreground/80">
+            <li className="flex items-center gap-2">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-foreground/20 text-xs">1</span>
+              Enter your details
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-foreground/20 text-xs">2</span>
+              Choose your profile type
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-foreground/20 text-xs">3</span>
+              Start learning and playing
+            </li>
+          </ul>
         </div>
         <p className="text-sm text-accent-foreground/50">
           Join 50,000+ families learning through play.
@@ -91,12 +106,12 @@ export default function SignUpPage() {
           </div>
 
           <h1 className="text-2xl font-bold text-foreground">
-            {step === 1 ? "Create your account" : "Choose your profile"}
+            {step === 1 ? "Create Your BrainSpark Account" : "Tell Us About Yourself"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {step === 1
-              ? "Fill in your details to get started."
-              : "Select who will be using BrainSpark."}
+              ? "Enter your details to create your personal learning account."
+              : "Help us personalize your BrainSpark experience."}
           </p>
 
           <form onSubmit={handleSubmit} className="mt-8">

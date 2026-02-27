@@ -152,7 +152,7 @@ export function SiteHeader() {
                 <Link href="/auth/login">Sign In</Link>
               </Button>
               <Button asChild>
-                <Link href="/auth/signup">Get Started</Link>
+                <Link href="/auth/signup">Create Your Account</Link>
               </Button>
             </div>
           )}
@@ -223,7 +223,7 @@ export function SiteHeader() {
                   <Link href="/auth/login">Sign In</Link>
                 </Button>
                 <Button className="flex-1" asChild>
-                  <Link href="/auth/signup">Get Started</Link>
+                  <Link href="/auth/signup">Create Account</Link>
                 </Button>
               </div>
             )}

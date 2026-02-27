@@ -49,7 +49,7 @@ export function HeroSection() {
                 <Button size="lg" className="gap-2 px-8 text-base" asChild>
                   <Link href="/auth/signup">
                     <Sparkles className="h-5 w-5" />
-                    Start Learning Free
+                    Create Your Account
                   </Link>
                 </Button>
                 <Button
@@ -68,7 +68,7 @@ export function HeroSection() {
           <p className="mt-4 text-sm text-muted-foreground">
             Guest mode includes 15 minutes of free play.{" "}
             <Link href="/auth/signup" className="font-medium text-primary underline-offset-4 hover:underline">
-              Sign up for unlimited access
+              Create your BrainSpark account for unlimited access
               <ArrowRight className="ml-1 inline h-3 w-3" />
             </Link>
           </p>
