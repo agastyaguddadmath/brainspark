@@ -77,8 +77,8 @@ export function HeroSection() {
         <div className="mt-16 grid grid-cols-2 gap-4 sm:grid-cols-4">
           {[
             { label: "Active Learners", value: "50K+" },
-            { label: "Games Available", value: "25+" },
-            { label: "Skill Categories", value: "6" },
+            { label: "Games Available", value: "70+" },
+            { label: "Skill Categories", value: "9" },
             { label: "Avg. Rating", value: "4.8" },
           ].map((stat) => (
             <div
