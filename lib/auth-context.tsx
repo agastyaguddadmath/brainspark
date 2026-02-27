@@ -37,12 +37,15 @@ export interface UserProfile {
   joinedAt: string
 }
 
+export type OAuthProvider = "google" | "microsoft"
+
 interface AuthContextType {
   user: UserProfile | null
   isAuthenticated: boolean
   isGuest: boolean
   guestTimeRemaining: number
   login: (email: string, password: string) => Promise<boolean>
+  loginWithOAuth: (provider: OAuthProvider, userData: OAuthUserData) => Promise<boolean>
   signUp: (data: SignUpData) => Promise<boolean>
   loginAsGuest: () => void
   logout: () => void
@@ -50,6 +53,12 @@ interface AuthContextType {
   addGameScore: (score: GameScore) => void
   addIqScore: (score: number) => void
   updateParentalControls: (controls: Partial<ParentalControls>) => void
+}
+
+interface OAuthUserData {
+  name: string
+  email: string
+  avatar?: string
 }
 
 interface SignUpData {
@@ -216,6 +225,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return false
   }, [])
 
+  const loginWithOAuth = useCallback(async (provider: OAuthProvider, userData: OAuthUserData): Promise<boolean> => {
+    const oauthKey = `oauth_${provider}_${userData.email}`
+    const storedUsers = getStoredUsers()
+    
+    // Check if user already exists with this OAuth
+    if (storedUsers[oauthKey]) {
+      setUser(storedUsers[oauthKey].profile)
+      setIsGuest(false)
+      saveCurrentUser(storedUsers[oauthKey].profile)
+      return true
+    }
+    
+    // Create new user from OAuth data
+    const newUser: UserProfile = {
+      id: `usr_${provider}_${Date.now()}`,
+      name: userData.name,
+      email: userData.email,
+      role: "parent", // Default to parent for OAuth users
+      ageGroup: "below14",
+      avatar: userData.avatar || userData.name.split(" ").map((n) => n[0]).join("").toUpperCase(),
+      parentalControls: {
+        maxDailyMinutes: 60,
+        allowedCategories: ["math", "science", "language", "coding", "identification", "art", "music", "geography", "iq"],
+        restrictedGames: [],
+      },
+      gameHistory: [],
+      iqScores: [],
+      totalPlayTime: 0,
+      streakDays: 0,
+      joinedAt: new Date().toISOString(),
+    }
+    
+    // Store OAuth user
+    storedUsers[oauthKey] = {
+      password: `oauth_${provider}`, // OAuth users don't have passwords
+      profile: newUser,
+    }
+    saveUsers(storedUsers)
+    
+    setUser(newUser)
+    setIsGuest(false)
+    saveCurrentUser(newUser)
+    return true
+  }, [])
+
   const signUp = useCallback(async (data: SignUpData): Promise<boolean> => {
     // Check if email already exists
     const storedUsers = getStoredUsers()
@@ -330,6 +384,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isGuest,
         guestTimeRemaining,
         login,
+        loginWithOAuth,
         signUp,
         loginAsGuest,
         logout,
