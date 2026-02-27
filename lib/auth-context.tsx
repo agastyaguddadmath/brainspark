@@ -203,40 +203,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [isGuest, guestTimeRemaining])
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
+    console.log("[v0] Auth login called", { email })
+    
     // Check demo users first
     const demoUser = demoUsers[email]
+    console.log("[v0] Demo user check:", { found: !!demoUser, passwordMatch: demoUser?.password === password })
     if (demoUser && demoUser.password === password) {
       setUser(demoUser.profile)
       setIsGuest(false)
       saveCurrentUser(demoUser.profile)
+      console.log("[v0] Demo user login successful")
       return true
     }
     
     // Check stored users
     const storedUsers = getStoredUsers()
     const storedUser = storedUsers[email]
+    console.log("[v0] Stored user check:", { found: !!storedUser, passwordMatch: storedUser?.password === password })
     if (storedUser && storedUser.password === password) {
       setUser(storedUser.profile)
       setIsGuest(false)
       saveCurrentUser(storedUser.profile)
+      console.log("[v0] Stored user login successful")
       return true
     }
     
+    console.log("[v0] Login failed - no matching user")
     return false
   }, [])
 
   const loginWithOAuth = useCallback(async (provider: OAuthProvider, userData: OAuthUserData): Promise<boolean> => {
+    console.log("[v0] OAuth login called", { provider, userData })
+    
     const oauthKey = `oauth_${provider}_${userData.email}`
     const storedUsers = getStoredUsers()
     
     // Check if user already exists with this OAuth
     if (storedUsers[oauthKey]) {
+      console.log("[v0] Existing OAuth user found")
       setUser(storedUsers[oauthKey].profile)
       setIsGuest(false)
       saveCurrentUser(storedUsers[oauthKey].profile)
       return true
     }
     
+    console.log("[v0] Creating new OAuth user")
     // Create new user from OAuth data
     const newUser: UserProfile = {
       id: `usr_${provider}_${Date.now()}`,

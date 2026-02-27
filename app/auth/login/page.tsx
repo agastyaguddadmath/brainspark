@@ -72,18 +72,29 @@ export default function LoginPage() {
 
   async function handleBrainSparkSubmit(e: React.FormEvent) {
     e.preventDefault()
+    console.log("[v0] BrainSpark login attempt", { email, password: "***" })
+    
     if (!email || !password) {
       toast.error("Please enter your email and password")
       return
     }
     setLoading(true)
-    const success = await login(email, password)
-    setLoading(false)
-    if (success) {
-      toast.success("Welcome back!")
-      router.push("/games")
-    } else {
-      toast.error("Invalid credentials. Please check your email and password.")
+    try {
+      const success = await login(email, password)
+      console.log("[v0] Login result:", success)
+      setLoading(false)
+      if (success) {
+        toast.success("Welcome back!")
+        console.log("[v0] Redirecting to /games...")
+        router.push("/games")
+      } else {
+        console.log("[v0] Login failed, showing error toast")
+        toast.error("Invalid credentials. Please check your email and password.")
+      }
+    } catch (error) {
+      console.error("[v0] Login error:", error)
+      setLoading(false)
+      toast.error("An error occurred. Please try again.")
     }
   }
 
@@ -96,6 +107,8 @@ export default function LoginPage() {
 
   async function handleOAuthSubmit(e: React.FormEvent) {
     e.preventDefault()
+    console.log("[v0] OAuth submit triggered", { oauthProvider, oauthEmail, oauthName })
+    
     if (!oauthProvider || !oauthEmail || !oauthName) {
       toast.error("Please fill in all fields")
       return
@@ -103,22 +116,30 @@ export default function LoginPage() {
     
     setOauthLoading(true)
     
-    // Simulate OAuth delay
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    const success = await loginWithOAuth(oauthProvider, {
-      name: oauthName,
-      email: oauthEmail,
-    })
-    
-    setOauthLoading(false)
-    
-    if (success) {
-      setShowOAuthModal(false)
-      toast.success(`Signed in with ${oauthProvider === "google" ? "Google" : "Microsoft"}!`)
-      router.push("/games")
-    } else {
-      toast.error("Failed to sign in. Please try again.")
+    try {
+      // Simulate OAuth delay
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      console.log("[v0] Calling loginWithOAuth...")
+      const success = await loginWithOAuth(oauthProvider, {
+        name: oauthName,
+        email: oauthEmail,
+      })
+      
+      console.log("[v0] loginWithOAuth result:", success)
+      setOauthLoading(false)
+      
+      if (success) {
+        setShowOAuthModal(false)
+        toast.success(`Signed in with ${oauthProvider === "google" ? "Google" : "Microsoft"}!`)
+        router.push("/games")
+      } else {
+        toast.error("Failed to sign in. Please try again.")
+      }
+    } catch (error) {
+      console.error("[v0] OAuth error:", error)
+      setOauthLoading(false)
+      toast.error("An error occurred. Please try again.")
     }
   }
 
