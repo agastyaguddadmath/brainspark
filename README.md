@@ -9,11 +9,6 @@ An engaging educational game platform for children ages 4-14 with interactive le
 - **Parental Controls** - Set time limits and control game access
 - **Guest Mode** - 15 minutes of free play without an account
 - **Multiple Sign-in Options** - BrainSpark account, Google, or Microsoft
-- 
-
-Thought for 2s
-
-Read site footer
 
 GitHub link added
 
