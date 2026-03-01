@@ -202,7 +202,7 @@ lib/
 
   ## GitHub
 
-Repository: [github.com/agastyaguddadmath/brainspark-zm](https://github.com/agastyaguddadmath/brainspark-zm)
+Repository: [github.com/agastyaguddadmath/brainspark](https://github.com/agastyaguddadmath/brainspark)
 
 ## License
 
