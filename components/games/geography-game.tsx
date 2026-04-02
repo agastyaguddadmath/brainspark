@@ -146,6 +146,8 @@ export function GeographyGame({ game, onComplete }: GeographyGameProps) {
   const [gameState, setGameState] = useState<"playing" | "complete">("playing")
   const totalQuestions = 8
   const hasCompletedRef = useRef(false)
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
 
   useEffect(() => {
     // Get questions based on game type
@@ -171,7 +173,7 @@ export function GeographyGame({ game, onComplete }: GeographyGameProps) {
       if (!hasCompletedRef.current) {
         hasCompletedRef.current = true
         const finalScore = Math.min(score, game.maxScore)
-        onComplete(finalScore, game.maxScore)
+        onCompleteRef.current(finalScore, game.maxScore)
       }
     } else {
       setCurrentIndex(prev => prev + 1)

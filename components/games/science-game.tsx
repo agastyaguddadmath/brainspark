@@ -145,6 +145,8 @@ export function ScienceGame({ game, onComplete }: ScienceGameProps) {
   const [finished, setFinished] = useState(false)
   const [showFact, setShowFact] = useState(false)
   const hasCompletedRef = useRef(false)
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
 
   const handleAnswer = useCallback(
     (index: number) => {
@@ -170,9 +172,9 @@ export function ScienceGame({ game, onComplete }: ScienceGameProps) {
   useEffect(() => {
     if (finished && !hasCompletedRef.current) {
       hasCompletedRef.current = true
-      onComplete(score, questions.length * 12)
+      onCompleteRef.current(score, questions.length * 12)
     }
-  }, [finished, score, questions.length, onComplete])
+  }, [finished, score, questions.length])
 
   if (finished) {
     const percentage = Math.round((score / (questions.length * 12)) * 100)

@@ -193,6 +193,8 @@ export function MathGame({ game, onComplete }: MathGameProps) {
   const [finished, setFinished] = useState(false)
   const [timeLeft, setTimeLeft] = useState(game.difficulty === "easy" ? 120 : game.difficulty === "medium" ? 90 : 60)
   const hasCompletedRef = useRef(false)
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
 
   useEffect(() => {
     if (finished || timeLeft <= 0) return
@@ -241,9 +243,9 @@ export function MathGame({ game, onComplete }: MathGameProps) {
       hasCompletedRef.current = true
       const maxScore = totalQuestions * 10
       const finalScore = Math.min(score, maxScore) // Cap score at max
-      onComplete(finalScore, maxScore)
+      onCompleteRef.current(finalScore, maxScore)
     }
-  }, [finished, score, onComplete])
+  }, [finished, score])
 
   if (finished) {
     const maxScore = totalQuestions * 10

@@ -53,6 +53,8 @@ export function ArtGame({ game, onComplete }: ArtGameProps) {
   const [colorsUsed, setColorsUsed] = useState<Set<string>>(new Set())
   const lastPos = useRef<{ x: number; y: number } | null>(null)
   const hasCompletedRef = useRef(false)
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -131,7 +133,7 @@ export function ArtGame({ game, onComplete }: ArtGameProps) {
     const totalScore = Math.min(calculatedScore, game.maxScore)
     
     setIsCompleted(true)
-    onComplete(totalScore, game.maxScore)
+    onCompleteRef.current(totalScore, game.maxScore)
   }
 
   const downloadArt = () => {

@@ -121,6 +121,8 @@ export function WordGame({ game, onComplete }: WordGameProps) {
   const [showHint, setShowHint] = useState(false)
   const [finished, setFinished] = useState(false)
   const hasCompletedRef = useRef(false)
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -147,9 +149,9 @@ export function WordGame({ game, onComplete }: WordGameProps) {
   useEffect(() => {
     if (finished && !hasCompletedRef.current) {
       hasCompletedRef.current = true
-      onComplete(score, words.length * 12)
+      onCompleteRef.current(score, words.length * 12)
     }
-  }, [finished, score, words.length, onComplete])
+  }, [finished, score, words.length])
 
   if (finished) {
     const percentage = Math.round((score / (words.length * 12)) * 100)
