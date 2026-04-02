@@ -1,6 +1,6 @@
 "use client"
 
-import { use, useCallback } from "react"
+import { use, useCallback, useState, useEffect } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { getGameById, getCategoryById } from "@/lib/game-data"
 import { SiteHeader } from "@/components/site-header"
@@ -12,6 +12,7 @@ import { CodingGame } from "@/components/games/coding-game"
 import { ArtGame } from "@/components/games/art-game"
 import { MusicGame } from "@/components/games/music-game"
 import { GeographyGame } from "@/components/games/geography-game"
+import { GameLoading } from "@/components/games/game-loading"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
@@ -30,6 +31,16 @@ export default function GamePlayPage({
   const router = useRouter()
   const game = getGameById(id)
   const category = game ? getCategoryById(game.category) : null
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate game loading time for a smooth experience
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 1500)
+
+    return () => clearTimeout(timer)
+  }, [id])
 
   const handleGameComplete = useCallback((score: number, maxScore: number) => {
     const stars = Math.ceil((score / maxScore) * 5)
@@ -72,8 +83,6 @@ export default function GamePlayPage({
   }
 
   const needsAuth = !game.guestAllowed && (!user || isGuest)
-  const isRestricted =
-    user && !isGuest && user.parentalControls.restrictedGames.includes(game.id)
 
   if (needsAuth) {
     return (
@@ -103,36 +112,6 @@ export default function GamePlayPage({
                 <Link href="/auth/signup">Create Account</Link>
               </Button>
             </div>
-          </div>
-        </main>
-        <SiteFooter />
-      </div>
-    )
-  }
-
-  if (isRestricted) {
-    return (
-      <div className="flex min-h-screen flex-col">
-        <SiteHeader />
-        <main className="flex flex-1 flex-col items-center justify-center bg-background px-4 py-16">
-          <div className="flex flex-col items-center text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-destructive/10">
-              <Lock className="h-8 w-8 text-destructive" />
-            </div>
-            <h1 className="mt-6 text-2xl font-bold text-foreground">
-              Game Restricted
-            </h1>
-            <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              <span className="font-semibold text-foreground">{game.name}</span>{" "}
-              has been restricted by your parent. Ask them to unblock this game
-              from the Parent Dashboard.
-            </p>
-            <Button className="mt-6" variant="outline" asChild>
-              <Link href="/games">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Games
-              </Link>
-            </Button>
           </div>
         </main>
         <SiteFooter />
@@ -211,7 +190,13 @@ export default function GamePlayPage({
             </div>
           </div>
 
-          <Card className="overflow-hidden">{renderGame()}</Card>
+          <Card className="overflow-hidden">
+            {isLoading ? (
+              <GameLoading gameName={game.name} category={game.category} />
+            ) : (
+              renderGame()
+            )}
+          </Card>
         </div>
       </main>
       <SiteFooter />

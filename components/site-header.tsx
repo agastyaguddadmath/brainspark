@@ -18,7 +18,6 @@ import {
   LogOut,
   User,
   BarChart3,
-  Shield,
   Clock,
   Menu,
   X,
@@ -75,19 +74,6 @@ export function SiteHeader() {
                 {link.label}
               </Link>
             ))}
-            {user?.role === "parent" && (
-              <Link
-                href="/parent"
-                className={cn(
-                  "rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary",
-                  pathname === "/parent"
-                    ? "bg-secondary text-foreground"
-                    : "text-muted-foreground"
-                )}
-              >
-                Parent Dashboard
-              </Link>
-            )}
           </nav>
         </div>
 
@@ -129,14 +115,6 @@ export function SiteHeader() {
                         Progress
                       </Link>
                     </DropdownMenuItem>
-                    {user.role === "parent" && (
-                      <DropdownMenuItem asChild>
-                        <Link href="/parent" className="flex items-center gap-2">
-                          <Shield className="h-4 w-4" />
-                          Parental Controls
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
                     <DropdownMenuSeparator />
                   </>
                 )}
@@ -191,15 +169,6 @@ export function SiteHeader() {
                 {link.label}
               </Link>
             ))}
-            {user?.role === "parent" && (
-              <Link
-                href="/parent"
-                onClick={() => setMobileMenuOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-secondary"
-              >
-                Parent Dashboard
-              </Link>
-            )}
           </nav>
           <div className="mt-4 border-t border-border pt-4">
             {user ? (

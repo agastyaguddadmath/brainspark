@@ -4,7 +4,8 @@ import { useState, useCallback, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle2, XCircle, Zap, Trophy } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { CheckCircle2, XCircle, Zap, Trophy, Calculator, Play, Star, Timer, Target } from "lucide-react"
 import type { Game } from "@/lib/game-data"
 
 interface MathQuestion {
@@ -134,32 +135,71 @@ export function MathGame({ game, onComplete }: MathGameProps) {
     const maxScore = totalQuestions * 10
     const displayScore = Math.min(score, maxScore)
     const percentage = Math.min(Math.round((score / maxScore) * 100), 100)
+    const stars = Math.ceil(percentage / 20)
+    
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
-          <Trophy className="h-10 w-10 text-primary" />
-        </div>
-        <h2 className="mt-6 text-3xl font-bold text-foreground">
-          {percentage >= 80 ? "Outstanding!" : percentage >= 50 ? "Good Job!" : "Keep Practicing!"}
-        </h2>
-        <p className="mt-2 text-lg text-muted-foreground">
-          You scored {displayScore} out of {maxScore} points
-        </p>
-        <div className="mt-6 flex items-center gap-4">
-          <div className="rounded-xl bg-secondary p-4 text-center">
-            <div className="text-2xl font-bold text-foreground">{percentage}%</div>
-            <div className="text-xs text-muted-foreground">Accuracy</div>
-          </div>
-          <div className="rounded-xl bg-secondary p-4 text-center">
-            <div className="text-2xl font-bold text-foreground">{displayScore}</div>
-            <div className="text-xs text-muted-foreground">Points</div>
-          </div>
-          <div className="rounded-xl bg-secondary p-4 text-center">
-            <div className="text-2xl font-bold text-foreground">{streak}</div>
-            <div className="text-xs text-muted-foreground">Best Streak</div>
+      <Card className="max-w-xl mx-auto overflow-hidden border-0 shadow-2xl">
+        <div className="relative bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 p-8 text-white text-center">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPjwvZz48L3N2Zz4=')] opacity-50" />
+          <div className="relative">
+            <div className="w-24 h-24 mx-auto mb-4 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-xl">
+              <Trophy className="w-12 h-12" />
+            </div>
+            <h2 className="text-3xl font-bold mb-2">
+              {percentage >= 80 ? "Outstanding!" : percentage >= 50 ? "Good Job!" : "Keep Practicing!"}
+            </h2>
+            <p className="text-white/80">Math challenge completed!</p>
           </div>
         </div>
-      </div>
+        
+        <CardContent className="p-8 bg-card">
+          <div className="flex justify-center gap-2 mb-6">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+                  i < stars
+                    ? "bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/30"
+                    : "bg-muted"
+                }`}
+              >
+                <Star
+                  className={`w-6 h-6 ${
+                    i < stars ? "text-white fill-white" : "text-muted-foreground"
+                  }`}
+                />
+              </div>
+            ))}
+          </div>
+          
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="rounded-2xl border border-border bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 p-4 text-center">
+              <Target className="w-5 h-5 mx-auto mb-2 text-emerald-600" />
+              <p className="text-2xl font-bold text-foreground">{percentage}%</p>
+              <p className="text-xs text-muted-foreground">Accuracy</p>
+            </div>
+            <div className="rounded-2xl border border-border bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-950/20 dark:to-blue-950/20 p-4 text-center">
+              <Calculator className="w-5 h-5 mx-auto mb-2 text-cyan-600" />
+              <p className="text-2xl font-bold text-foreground">{displayScore}</p>
+              <p className="text-xs text-muted-foreground">Points</p>
+            </div>
+            <div className="rounded-2xl border border-border bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 p-4 text-center">
+              <Zap className="w-5 h-5 mx-auto mb-2 text-amber-600" />
+              <p className="text-2xl font-bold text-foreground">{streak}</p>
+              <p className="text-xs text-muted-foreground">Best Streak</p>
+            </div>
+          </div>
+          
+          <Button 
+            onClick={() => window.location.reload()} 
+            size="lg"
+            className="w-full h-14 text-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
+          >
+            <Play className="w-5 h-5 mr-2" />
+            Play Again
+          </Button>
+        </CardContent>
+      </Card>
     )
   }
 
@@ -168,83 +208,116 @@ export function MathGame({ game, onComplete }: MathGameProps) {
   const secs = timeLeft % 60
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="mx-auto max-w-xl space-y-6">
+      {/* Stats Bar */}
+      <div className="flex flex-wrap gap-3 items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-sm">
         <div className="flex items-center gap-3">
-          <Badge variant="outline">
-            {currentQ + 1}/{totalQuestions}
-          </Badge>
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/20">
+            <Calculator className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground">Question {currentQ + 1} of {totalQuestions}</p>
+            <p className="text-xs text-muted-foreground">Score: {score} pts</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
           {streak >= 3 && (
-            <Badge className="gap-1 bg-warning text-warning-foreground">
+            <Badge className="gap-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 rounded-lg px-3 py-1">
               <Zap className="h-3 w-3" />
               x2 Streak!
             </Badge>
           )}
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-foreground">Score: {score}</span>
-          <span className={`text-sm font-mono ${timeLeft <= 15 ? "text-destructive" : "text-muted-foreground"}`}>
-            {mins}:{secs.toString().padStart(2, "0")}
-          </span>
+          <div className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 ${
+            timeLeft <= 15 
+              ? "bg-destructive/10 text-destructive" 
+              : "bg-muted text-muted-foreground"
+          }`}>
+            <Timer className="h-4 w-4" />
+            <span className="font-mono font-medium">
+              {mins}:{secs.toString().padStart(2, "0")}
+            </span>
+          </div>
         </div>
       </div>
 
-      <Progress value={((currentQ + 1) / totalQuestions) * 100} className="h-2" />
-
-      <div className="rounded-2xl border border-border bg-card p-8 text-center">
-        <p className="text-sm font-medium text-muted-foreground">Solve this:</p>
-        <p className="mt-4 font-mono text-4xl font-bold text-foreground">
-          {question.question}
-        </p>
+      {/* Progress */}
+      <div className="h-2 rounded-full bg-muted overflow-hidden">
+        <div 
+          className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-300"
+          style={{ width: `${((currentQ + 1) / totalQuestions) * 100}%` }}
+        />
       </div>
 
+      {/* Question Card */}
+      <Card className="overflow-hidden border-0 shadow-xl">
+        <div className="bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 p-8 text-center">
+          <p className="text-sm font-medium text-muted-foreground mb-2">Solve this equation:</p>
+          <div className="inline-flex items-center justify-center rounded-2xl bg-card border border-border shadow-sm px-8 py-6">
+            <p className="font-mono text-5xl font-bold text-foreground tracking-wide">
+              {question.question}
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      {/* Answer Options */}
       <div className="grid grid-cols-2 gap-3">
-        {question.options.map((option) => {
-          let variant: "outline" | "default" | "destructive" = "outline"
-          let extraClass = ""
-
-          if (selected !== null) {
-            if (option === question.answer) {
-              variant = "default"
-              extraClass = "bg-[oklch(0.7_0.18_150)] text-[oklch(0.99_0_0)] border-[oklch(0.7_0.18_150)]"
-            } else if (option === selected) {
-              variant = "destructive"
+        {question.options.map((option, index) => {
+          const isSelected = selected === option
+          const isCorrectAnswer = option === question.answer
+          const showResult = selected !== null
+          
+          let buttonClass = "relative h-20 text-2xl font-bold rounded-2xl transition-all duration-200 border-2 "
+          
+          if (showResult) {
+            if (isCorrectAnswer) {
+              buttonClass += "bg-gradient-to-br from-emerald-500 to-teal-500 text-white border-emerald-500 shadow-lg shadow-emerald-500/30"
+            } else if (isSelected) {
+              buttonClass += "bg-gradient-to-br from-rose-500 to-red-500 text-white border-rose-500 shadow-lg shadow-rose-500/30"
+            } else {
+              buttonClass += "bg-muted/50 text-muted-foreground border-transparent opacity-50"
             }
+          } else {
+            buttonClass += "bg-card hover:bg-muted/50 text-foreground border-border hover:border-primary/50 hover:shadow-md"
           }
 
           return (
-            <Button
+            <button
               key={option}
-              variant={variant}
-              className={`h-16 text-xl font-bold ${extraClass}`}
+              className={buttonClass}
               onClick={() => handleAnswer(option)}
               disabled={selected !== null}
             >
+              <span className="absolute top-2 left-3 text-xs font-normal opacity-60">
+                {String.fromCharCode(65 + index)}
+              </span>
               {option}
-              {selected !== null && option === question.answer && (
-                <CheckCircle2 className="ml-2 h-5 w-5" />
+              {showResult && isCorrectAnswer && (
+                <CheckCircle2 className="absolute top-2 right-2 h-5 w-5" />
               )}
-              {selected === option && option !== question.answer && (
-                <XCircle className="ml-2 h-5 w-5" />
+              {showResult && isSelected && !isCorrectAnswer && (
+                <XCircle className="absolute top-2 right-2 h-5 w-5" />
               )}
-            </Button>
+            </button>
           )
         })}
       </div>
 
+      {/* Feedback */}
       {isCorrect !== null && (
         <div
-          className={`rounded-lg p-3 text-center text-sm font-medium ${
+          className={`rounded-xl p-4 text-center font-medium ${
             isCorrect
-              ? "bg-[oklch(0.7_0.18_150/0.1)] text-[oklch(0.5_0.18_150)]"
-              : "bg-destructive/10 text-destructive"
+              ? "bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-700 dark:text-emerald-400"
+              : "bg-gradient-to-r from-rose-500/10 to-red-500/10 text-rose-700 dark:text-rose-400"
           }`}
         >
           {isCorrect
             ? streak >= 3
-              ? "Fantastic! Double points!"
+              ? "Fantastic! Double points bonus!"
               : "Correct! Well done!"
-            : `The answer was ${question.answer}`}
+            : `Oops! The answer was ${question.answer}`}
         </div>
       )}
     </div>

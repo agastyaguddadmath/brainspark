@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   Trophy,
   Play,
@@ -13,6 +14,9 @@ import {
   ArrowRight,
   Trash2,
   ChevronRight,
+  Code2,
+  Star,
+  Cpu,
 } from "lucide-react"
 import type { Game } from "@/lib/game-data"
 
@@ -67,10 +71,10 @@ const levels: Level[] = [
 ]
 
 const blockColors: Record<Direction, string> = {
-  up: "bg-[oklch(0.55_0.2_250)] text-[oklch(0.99_0_0)]",
-  down: "bg-[oklch(0.7_0.18_150)] text-[oklch(0.99_0_0)]",
-  left: "bg-[oklch(0.7_0.2_50)] text-[oklch(0.99_0_0)]",
-  right: "bg-[oklch(0.65_0.2_330)] text-[oklch(0.99_0_0)]",
+  up: "bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/20",
+  down: "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/20",
+  left: "bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/20",
+  right: "bg-gradient-to-br from-pink-500 to-rose-600 text-white shadow-lg shadow-pink-500/20",
 }
 
 const dirIcons: Record<Direction, typeof ArrowUp> = {
@@ -198,170 +202,227 @@ export function CodingGame({ game, onComplete }: CodingGameProps) {
   }, [finished, totalScore, onComplete])
 
   if (finished) {
+    const stars = Math.ceil((totalScore / 100) * 5)
+    
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[oklch(0.65_0.2_330/0.1)]">
-          <Trophy className="h-10 w-10 text-[oklch(0.65_0.2_330)]" />
+      <Card className="max-w-xl mx-auto overflow-hidden border-0 shadow-2xl">
+        <div className="relative bg-gradient-to-br from-pink-500 via-rose-500 to-red-500 p-8 text-white text-center">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPjwvZz48L3N2Zz4=')] opacity-50" />
+          <div className="relative">
+            <div className="w-24 h-24 mx-auto mb-4 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-xl">
+              <Trophy className="w-12 h-12" />
+            </div>
+            <h2 className="text-3xl font-bold mb-2">
+              {totalScore >= 80 ? "Master Coder!" : totalScore >= 50 ? "Great Coding!" : "Keep Coding!"}
+            </h2>
+            <p className="text-white/80">All {levels.length} levels completed!</p>
+          </div>
         </div>
-        <h2 className="mt-6 text-3xl font-bold text-foreground">
-          {totalScore >= 80 ? "Master Coder!" : totalScore >= 50 ? "Great Coding!" : "Keep Coding!"}
-        </h2>
-        <p className="mt-2 text-lg text-muted-foreground">
-          You completed all {levels.length} levels!
-        </p>
-        <div className="mt-6 rounded-xl bg-secondary p-4 text-center">
-          <div className="text-2xl font-bold text-foreground">{totalScore}</div>
-          <div className="text-xs text-muted-foreground">Total Points</div>
-        </div>
-      </div>
+        
+        <CardContent className="p-8 bg-card">
+          <div className="flex justify-center gap-2 mb-6">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+                  i < stars
+                    ? "bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/30"
+                    : "bg-muted"
+                }`}
+              >
+                <Star
+                  className={`w-6 h-6 ${
+                    i < stars ? "text-white fill-white" : "text-muted-foreground"
+                  }`}
+                />
+              </div>
+            ))}
+          </div>
+          
+          <div className="rounded-2xl border border-border bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-950/20 dark:to-rose-950/20 p-6 text-center mb-6">
+            <Code2 className="w-8 h-8 mx-auto mb-2 text-pink-600" />
+            <p className="text-3xl font-bold text-foreground">{totalScore}</p>
+            <p className="text-sm text-muted-foreground">Total Points</p>
+          </div>
+          
+          <Button 
+            onClick={() => window.location.reload()} 
+            size="lg"
+            className="w-full h-14 text-lg bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600"
+          >
+            <Play className="w-5 h-5 mr-2" />
+            Play Again
+          </Button>
+        </CardContent>
+      </Card>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Badge variant="outline">Level {levelIndex + 1}/{levels.length}</Badge>
-          <Badge variant="secondary">{instructions.length}/{level.maxMoves} blocks</Badge>
+    <div className="space-y-6 max-w-4xl mx-auto">
+      {/* Stats Bar */}
+      <div className="flex flex-wrap gap-3 items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 text-white shadow-lg shadow-pink-500/20">
+            <Cpu className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground">Level {levelIndex + 1} of {levels.length}</p>
+            <p className="text-xs text-muted-foreground">Score: {totalScore} pts</p>
+          </div>
         </div>
-        <span className="text-sm font-medium text-foreground">Score: {totalScore}</span>
+        <Badge className="bg-gradient-to-r from-pink-500/10 to-rose-500/10 text-pink-700 dark:text-pink-400 border-pink-200 dark:border-pink-800 rounded-lg px-3 py-1">
+          <Code2 className="h-3 w-3 mr-1" />
+          {instructions.length}/{level.maxMoves} blocks
+        </Badge>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="space-y-4">
-          <p className="text-sm font-medium text-foreground">
-            Guide the robot to the green goal by placing directional blocks below.
-          </p>
+        {/* Game Grid Section */}
+        <Card className="overflow-hidden border-0 shadow-xl">
+          <div className="bg-gradient-to-r from-pink-500/10 via-rose-500/10 to-red-500/10 p-4">
+            <p className="text-sm font-medium text-foreground text-center mb-4">
+              Guide the robot to the green goal!
+            </p>
 
-          <div className="flex justify-center">
-            <div className="inline-grid gap-1 rounded-xl border border-border bg-card p-3">
-              {level.grid.map((row, r) => (
-                <div key={r} className="flex gap-1">
-                  {row.map((cell, c) => {
-                    const isRobot = robotPos[0] === r && robotPos[1] === c
-                    const isPath = path.some(([pr, pc]) => pr === r && pc === c)
-                    const isEnd = level.endPos[0] === r && level.endPos[1] === c
-                    const isStart = level.startPos[0] === r && level.startPos[1] === c
+            <div className="flex justify-center">
+              <div className="inline-grid gap-1 rounded-2xl bg-slate-800 p-4 shadow-inner">
+                {level.grid.map((row, r) => (
+                  <div key={r} className="flex gap-1">
+                    {row.map((cell, c) => {
+                      const isRobot = robotPos[0] === r && robotPos[1] === c
+                      const isPath = path.some(([pr, pc]) => pr === r && pc === c)
+                      const isEnd = level.endPos[0] === r && level.endPos[1] === c
+                      const isStart = level.startPos[0] === r && level.startPos[1] === c
 
-                    let bg = "bg-secondary"
-                    if (cell === "wall") bg = "bg-foreground/20"
-                    if (isPath) bg = "bg-primary/20"
-                    if (isEnd) bg = "bg-[oklch(0.7_0.18_150)]"
-                    if (isStart && !isRobot) bg = "bg-primary/30"
+                      let bg = "bg-slate-700"
+                      let shadow = ""
+                      if (cell === "wall") bg = "bg-slate-900"
+                      if (isPath) bg = "bg-pink-500/40"
+                      if (isEnd) {
+                        bg = "bg-gradient-to-br from-emerald-400 to-teal-500"
+                        shadow = "shadow-lg shadow-emerald-500/30"
+                      }
+                      if (isStart && !isRobot) bg = "bg-pink-500/30"
 
-                    return (
-                      <div
-                        key={c}
-                        className={`flex h-10 w-10 items-center justify-center rounded-lg text-xs font-bold ${bg} transition-all ${
-                          isRobot ? "bg-primary text-primary-foreground ring-2 ring-primary/50" : ""
-                        }`}
-                      >
-                        {isRobot ? (
-                          <span className="text-sm">{">"}</span>
-                        ) : isEnd ? (
-                          <span className="text-xs text-[oklch(0.99_0_0)]">{"GO"}</span>
-                        ) : null}
-                      </div>
-                    )
-                  })}
-                </div>
-              ))}
+                      return (
+                        <div
+                          key={c}
+                          className={`flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg text-xs font-bold ${bg} ${shadow} transition-all duration-200 ${
+                            isRobot ? "bg-gradient-to-br from-pink-500 to-rose-500 text-white ring-2 ring-pink-400 shadow-lg shadow-pink-500/40" : ""
+                          }`}
+                        >
+                          {isRobot ? (
+                            <Cpu className="w-5 h-5" />
+                          ) : isEnd ? (
+                            <span className="text-xs text-white font-bold">GO</span>
+                          ) : null}
+                        </div>
+                      )
+                    })}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {won && (
-            <div className="rounded-lg bg-[oklch(0.7_0.18_150/0.1)] p-3 text-center text-sm font-medium text-[oklch(0.5_0.18_150)]">
-              Level complete! Great problem-solving!
-            </div>
-          )}
-          {failed && (
-            <div className="rounded-lg bg-destructive/10 p-3 text-center text-sm font-medium text-destructive">
-              {"The robot couldn't reach the goal. Try different blocks!"}
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-4">
-          <p className="text-sm font-medium text-muted-foreground">Code blocks:</p>
-          <div className="grid grid-cols-4 gap-2">
-            {(["up", "down", "left", "right"] as Direction[]).map((dir) => {
-              const Icon = dirIcons[dir]
-              return (
-                <Button
-                  key={dir}
-                  className={`h-12 gap-1 text-xs capitalize ${blockColors[dir]}`}
-                  onClick={() => addInstruction(dir)}
-                  disabled={running || instructions.length >= level.maxMoves}
-                >
-                  <Icon className="h-4 w-4" />
-                  {dir}
-                </Button>
-              )
-            })}
-          </div>
-
-          <div className="min-h-[120px] rounded-xl border border-border bg-card p-3">
-            <p className="mb-2 text-xs font-medium text-muted-foreground">Program:</p>
-            <div className="flex flex-wrap gap-1.5">
-              {instructions.map((dir, i) => {
-                const Icon = dirIcons[dir]
-                return (
-                  <button
-                    key={i}
-                    className={`flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium transition-all hover:opacity-80 ${blockColors[dir]}`}
-                    onClick={() => removeInstruction(i)}
-                    disabled={running}
-                    aria-label={`Remove ${dir} instruction`}
-                  >
-                    <Icon className="h-3 w-3" />
-                    {i + 1}
-                  </button>
-                )
-              })}
-              {instructions.length === 0 && (
-                <span className="text-xs text-muted-foreground">
-                  Click direction buttons to add instructions...
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            {won ? (
-              <Button className="flex-1 gap-2" onClick={nextLevel}>
-                <ChevronRight className="h-4 w-4" />
-                {levelIndex + 1 >= levels.length ? "Finish" : "Next Level"}
-              </Button>
-            ) : (
-              <>
-                <Button
-                  className="flex-1 gap-2"
-                  onClick={runProgram}
-                  disabled={running || instructions.length === 0}
-                >
-                  <Play className="h-4 w-4" />
-                  Run
-                </Button>
-                <Button
-                  variant="outline"
-                  className="gap-2"
-                  onClick={() => {
-                    setInstructions([])
-                    reset()
-                  }}
-                  disabled={running}
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Clear
-                </Button>
-                <Button variant="outline" className="gap-2" onClick={reset} disabled={running}>
-                  <RotateCw className="h-4 w-4" />
-                  Reset
-                </Button>
-              </>
+            {won && (
+              <div className="mt-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 p-3 text-center text-sm font-medium text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                Level complete! Great problem-solving!
+              </div>
+            )}
+            {failed && (
+              <div className="mt-4 rounded-xl bg-gradient-to-r from-rose-500/10 to-red-500/10 p-3 text-center text-sm font-medium text-rose-700 dark:text-rose-400 border border-rose-500/20">
+                {"The robot couldn't reach the goal. Try different blocks!"}
+              </div>
             )}
           </div>
-        </div>
+        </Card>
+
+        {/* Code Blocks Section */}
+        <Card className="overflow-hidden border-0 shadow-xl">
+          <CardContent className="p-6 space-y-4">
+            <p className="text-sm font-medium text-foreground">Direction Blocks:</p>
+            <div className="grid grid-cols-4 gap-2">
+              {(["up", "down", "left", "right"] as Direction[]).map((dir) => {
+                const Icon = dirIcons[dir]
+                return (
+                  <Button
+                    key={dir}
+                    className={`h-14 gap-1 text-xs capitalize rounded-xl ${blockColors[dir]}`}
+                    onClick={() => addInstruction(dir)}
+                    disabled={running || instructions.length >= level.maxMoves}
+                  >
+                    <Icon className="h-5 w-5" />
+                    {dir}
+                  </Button>
+                )
+              })}
+            </div>
+
+            <div className="min-h-[120px] rounded-xl border-2 border-dashed border-border bg-muted/30 p-4">
+              <p className="mb-3 text-xs font-medium text-muted-foreground">Your Program:</p>
+              <div className="flex flex-wrap gap-2">
+                {instructions.map((dir, i) => {
+                  const Icon = dirIcons[dir]
+                  return (
+                    <button
+                      key={i}
+                      className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-all hover:scale-105 ${blockColors[dir]}`}
+                      onClick={() => removeInstruction(i)}
+                      disabled={running}
+                      aria-label={`Remove ${dir} instruction`}
+                    >
+                      <span className="text-white/70">{i + 1}.</span>
+                      <Icon className="h-4 w-4" />
+                    </button>
+                  )
+                })}
+                {instructions.length === 0 && (
+                  <span className="text-sm text-muted-foreground">
+                    Click direction buttons above to build your program...
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              {won ? (
+                <Button 
+                  className="flex-1 gap-2 h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600" 
+                  onClick={nextLevel}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                  {levelIndex + 1 >= levels.length ? "Finish" : "Next Level"}
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    className="flex-1 gap-2 h-12 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600"
+                    onClick={runProgram}
+                    disabled={running || instructions.length === 0}
+                  >
+                    <Play className="h-4 w-4" />
+                    Run Code
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="gap-2 h-12 rounded-xl"
+                    onClick={() => {
+                      setInstructions([])
+                      reset()
+                    }}
+                    disabled={running}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" className="gap-2 h-12 rounded-xl" onClick={reset} disabled={running}>
+                    <RotateCw className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

@@ -2,9 +2,9 @@
 
 import { useState, useCallback, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle2, XCircle, Trophy, Lightbulb } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { CheckCircle2, XCircle, Trophy, Lightbulb, Atom, Play, Star, FlaskConical } from "lucide-react"
 import type { Game } from "@/lib/game-data"
 
 interface ScienceQuestion {
@@ -92,83 +92,160 @@ export function ScienceGame({ game, onComplete }: ScienceGameProps) {
 
   if (finished) {
     const percentage = Math.round((score / (questions.length * 12)) * 100)
+    const stars = Math.ceil(percentage / 20)
+    
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[oklch(0.7_0.18_150/0.1)]">
-          <Trophy className="h-10 w-10 text-[oklch(0.7_0.18_150)]" />
-        </div>
-        <h2 className="mt-6 text-3xl font-bold text-foreground">
-          {percentage >= 80 ? "Science Genius!" : percentage >= 50 ? "Great Explorer!" : "Keep Discovering!"}
-        </h2>
-        <p className="mt-2 text-lg text-muted-foreground">
-          You scored {score} out of {questions.length * 12} points
-        </p>
-        <div className="mt-6 flex items-center gap-4">
-          <div className="rounded-xl bg-secondary p-4 text-center">
-            <div className="text-2xl font-bold text-foreground">{percentage}%</div>
-            <div className="text-xs text-muted-foreground">Accuracy</div>
-          </div>
-          <div className="rounded-xl bg-secondary p-4 text-center">
-            <div className="text-2xl font-bold text-foreground">{score}</div>
-            <div className="text-xs text-muted-foreground">Points</div>
+      <Card className="max-w-xl mx-auto overflow-hidden border-0 shadow-2xl">
+        <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 p-8 text-white text-center">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPjwvZz48L3N2Zz4=')] opacity-50" />
+          <div className="relative">
+            <div className="w-24 h-24 mx-auto mb-4 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-xl">
+              <Trophy className="w-12 h-12" />
+            </div>
+            <h2 className="text-3xl font-bold mb-2">
+              {percentage >= 80 ? "Science Genius!" : percentage >= 50 ? "Great Explorer!" : "Keep Discovering!"}
+            </h2>
+            <p className="text-white/80">Science challenge completed!</p>
           </div>
         </div>
-      </div>
+        
+        <CardContent className="p-8 bg-card">
+          <div className="flex justify-center gap-2 mb-6">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+                  i < stars
+                    ? "bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/30"
+                    : "bg-muted"
+                }`}
+              >
+                <Star
+                  className={`w-6 h-6 ${
+                    i < stars ? "text-white fill-white" : "text-muted-foreground"
+                  }`}
+                />
+              </div>
+            ))}
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="rounded-2xl border border-border bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-4 text-center">
+              <p className="text-3xl font-bold text-foreground">{percentage}%</p>
+              <p className="text-sm text-muted-foreground">Accuracy</p>
+            </div>
+            <div className="rounded-2xl border border-border bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/20 dark:to-purple-950/20 p-4 text-center">
+              <p className="text-3xl font-bold text-foreground">{score}</p>
+              <p className="text-sm text-muted-foreground">Points</p>
+            </div>
+          </div>
+          
+          <Button 
+            onClick={() => window.location.reload()} 
+            size="lg"
+            className="w-full h-14 text-lg bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
+          >
+            <Play className="w-5 h-5 mr-2" />
+            Play Again
+          </Button>
+        </CardContent>
+      </Card>
     )
   }
 
   const q = questions[currentQ]
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
-      <div className="flex items-center justify-between">
-        <Badge variant="outline">{currentQ + 1}/{questions.length}</Badge>
-        <span className="text-sm font-medium text-foreground">Score: {score}</span>
+    <div className="mx-auto max-w-xl space-y-6">
+      {/* Stats Bar */}
+      <div className="flex flex-wrap gap-3 items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-500/20">
+            <Atom className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground">Question {currentQ + 1} of {questions.length}</p>
+            <p className="text-xs text-muted-foreground">Score: {score} pts</p>
+          </div>
+        </div>
+        <Badge className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800">
+          <FlaskConical className="h-3 w-3 mr-1" />
+          Science
+        </Badge>
       </div>
 
-      <Progress value={((currentQ + 1) / questions.length) * 100} className="h-2" />
-
-      <div className="rounded-2xl border border-border bg-card p-8">
-        <p className="text-center text-lg font-semibold leading-relaxed text-foreground">
-          {q.question}
-        </p>
+      {/* Progress */}
+      <div className="h-2 rounded-full bg-muted overflow-hidden">
+        <div 
+          className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300"
+          style={{ width: `${((currentQ + 1) / questions.length) * 100}%` }}
+        />
       </div>
 
+      {/* Question Card */}
+      <Card className="overflow-hidden border-0 shadow-xl">
+        <div className="bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 p-8">
+          <p className="text-center text-xl font-semibold leading-relaxed text-foreground">
+            {q.question}
+          </p>
+        </div>
+      </Card>
+
+      {/* Answer Options */}
       <div className="grid gap-3">
         {q.options.map((option, i) => {
-          let extraClass = ""
-          if (selected !== null) {
-            if (i === q.correct) extraClass = "border-[oklch(0.7_0.18_150)] bg-[oklch(0.7_0.18_150/0.1)] text-foreground"
-            else if (i === selected) extraClass = "border-destructive bg-destructive/10 text-foreground"
+          const isSelected = selected === i
+          const isCorrectAnswer = i === q.correct
+          const showResult = selected !== null
+          
+          let buttonClass = "relative h-auto justify-start px-4 py-4 text-left rounded-xl transition-all duration-200 border-2 "
+          
+          if (showResult) {
+            if (isCorrectAnswer) {
+              buttonClass += "bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500 text-foreground"
+            } else if (isSelected) {
+              buttonClass += "bg-gradient-to-r from-rose-500/10 to-red-500/10 border-rose-500 text-foreground"
+            } else {
+              buttonClass += "bg-muted/30 border-transparent text-muted-foreground opacity-50"
+            }
+          } else {
+            buttonClass += "bg-card hover:bg-muted/50 border-border hover:border-primary/50"
           }
+
           return (
-            <Button
+            <button
               key={i}
-              variant="outline"
-              className={`h-auto justify-start px-4 py-3 text-left text-sm ${extraClass}`}
+              className={buttonClass}
               onClick={() => handleAnswer(i)}
               disabled={selected !== null}
             >
-              <span className="mr-3 flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-xs font-bold text-foreground">
+              <span className={`mr-3 flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold ${
+                showResult && isCorrectAnswer
+                  ? "bg-emerald-500 text-white"
+                  : showResult && isSelected
+                  ? "bg-rose-500 text-white"
+                  : "bg-gradient-to-br from-blue-500/20 to-indigo-500/20 text-blue-700 dark:text-blue-400"
+              }`}>
                 {String.fromCharCode(65 + i)}
               </span>
-              {option}
-              {selected !== null && i === q.correct && (
-                <CheckCircle2 className="ml-auto h-5 w-5 text-[oklch(0.7_0.18_150)]" />
+              <span className="flex-1">{option}</span>
+              {showResult && isCorrectAnswer && (
+                <CheckCircle2 className="ml-auto h-5 w-5 text-emerald-500" />
               )}
-              {selected === i && i !== q.correct && (
-                <XCircle className="ml-auto h-5 w-5 text-destructive" />
+              {showResult && isSelected && !isCorrectAnswer && (
+                <XCircle className="ml-auto h-5 w-5 text-rose-500" />
               )}
-            </Button>
+            </button>
           )
         })}
       </div>
 
+      {/* Fun Fact */}
       {showFact && (
-        <div className="flex items-start gap-3 rounded-lg bg-[oklch(0.6_0.15_230/0.1)] p-4">
-          <Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-[oklch(0.6_0.15_230)]" />
+        <div className="flex items-start gap-3 rounded-xl bg-gradient-to-r from-blue-500/10 to-indigo-500/10 p-4 border border-blue-500/20">
+          <Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-blue-500" />
           <div>
-            <p className="text-xs font-medium text-[oklch(0.6_0.15_230)]">Fun Fact</p>
+            <p className="text-xs font-medium text-blue-600 dark:text-blue-400">Fun Fact</p>
             <p className="mt-0.5 text-sm text-foreground">{q.fact}</p>
           </div>
         </div>

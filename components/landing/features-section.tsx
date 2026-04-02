@@ -1,21 +1,15 @@
 "use client"
 
 import {
-  Shield,
   Brain,
   BarChart3,
   Clock,
   Code2,
-  Users,
+  Sparkles,
+  Gamepad2,
 } from "lucide-react"
 
 const features = [
-  {
-    icon: Shield,
-    title: "Parental Controls",
-    description:
-      "Set daily time limits, restrict specific categories, and monitor your child's learning activity from a dedicated dashboard.",
-  },
   {
     icon: Brain,
     title: "IQ Assessment",
@@ -32,7 +26,7 @@ const features = [
     icon: Clock,
     title: "Guest Mode",
     description:
-      "15-minute free play sessions for new visitors. No sign-up required. Time limits prevent parental control bypass.",
+      "15-minute free play sessions for new visitors. No sign-up required. Jump right in and try our games!",
   },
   {
     icon: Code2,
@@ -41,10 +35,16 @@ const features = [
       "Scratch-like block building, turtle graphics, and robot maze coding activities that foster creativity and problem-solving.",
   },
   {
-    icon: Users,
-    title: "Family Accounts",
+    icon: Sparkles,
+    title: "Adaptive Learning",
     description:
-      "Parent and child roles with separate dashboards. Parents oversee progress, children enjoy a focused learning experience.",
+      "Games adapt to your skill level, providing the right challenge to keep you engaged and learning at your own pace.",
+  },
+  {
+    icon: Gamepad2,
+    title: "Fun Categories",
+    description:
+      "Explore math, science, language arts, coding, art, music, geography, and more through engaging educational games.",
   },
 ]
 
@@ -54,10 +54,10 @@ export function FeaturesSection() {
       <div className="mx-auto max-w-7xl px-4 lg:px-8">
         <div className="mb-12 text-center">
           <h2 className="text-3xl font-bold text-foreground lg:text-4xl">
-            Built for Learning, Designed for Safety
+            Built for Learning, Designed for Fun
           </h2>
           <p className="mt-3 text-lg text-muted-foreground">
-            Every feature is thoughtfully crafted for children and trusted by parents.
+            Every feature is thoughtfully crafted to make education engaging and effective.
           </p>
         </div>
 
