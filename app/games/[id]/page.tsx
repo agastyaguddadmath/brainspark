@@ -1,6 +1,6 @@
 "use client"
 
-import { use, useCallback } from "react"
+import { use, useCallback, useState, useEffect } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { getGameById, getCategoryById } from "@/lib/game-data"
 import { SiteHeader } from "@/components/site-header"
@@ -12,6 +12,7 @@ import { CodingGame } from "@/components/games/coding-game"
 import { ArtGame } from "@/components/games/art-game"
 import { MusicGame } from "@/components/games/music-game"
 import { GeographyGame } from "@/components/games/geography-game"
+import { GameLoading } from "@/components/games/game-loading"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
@@ -30,6 +31,16 @@ export default function GamePlayPage({
   const router = useRouter()
   const game = getGameById(id)
   const category = game ? getCategoryById(game.category) : null
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate game loading time for a smooth experience
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 1500)
+
+    return () => clearTimeout(timer)
+  }, [id])
 
   const handleGameComplete = useCallback((score: number, maxScore: number) => {
     const stars = Math.ceil((score / maxScore) * 5)
@@ -179,7 +190,13 @@ export default function GamePlayPage({
             </div>
           </div>
 
-          <Card className="overflow-hidden">{renderGame()}</Card>
+          <Card className="overflow-hidden">
+            {isLoading ? (
+              <GameLoading gameName={game.name} category={game.category} />
+            ) : (
+              renderGame()
+            )}
+          </Card>
         </div>
       </main>
       <SiteFooter />
