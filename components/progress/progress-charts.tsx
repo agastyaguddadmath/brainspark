@@ -1,6 +1,7 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
+// Progress chart component for tracking game performance
 import type { GameScore } from "@/lib/auth-context"
 import {
   BarChart,
