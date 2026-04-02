@@ -14,11 +14,12 @@ interface WordPuzzle {
   hint: string
 }
 
-const easyWords: WordPuzzle[] = [
+// Word Builder - basic word unscrambling
+const wordBuilderWords: WordPuzzle[] = [
   { scrambled: "tac", answer: "cat", hint: "A furry pet that purrs" },
   { scrambled: "god", answer: "dog", hint: "Man's best friend" },
   { scrambled: "nus", answer: "sun", hint: "Shines in the sky during the day" },
-  { scrambled: "erte", answer: "tree", hint: "It has leaves and branches" },
+  { scrambled: "etre", answer: "tree", hint: "It has leaves and branches" },
   { scrambled: "rats", answer: "star", hint: "Twinkles in the night sky" },
   { scrambled: "okbo", answer: "book", hint: "You read it for stories" },
   { scrambled: "shfi", answer: "fish", hint: "Lives in water" },
@@ -27,7 +28,22 @@ const easyWords: WordPuzzle[] = [
   { scrambled: "niar", answer: "rain", hint: "Water falling from clouds" },
 ]
 
-const mediumWords: WordPuzzle[] = [
+// Phonics Fun - letter sounds and patterns
+const phonicsWords: WordPuzzle[] = [
+  { scrambled: "tah", answer: "hat", hint: "You wear it on your head" },
+  { scrambled: "gpi", answer: "pig", hint: "Farm animal that oinks" },
+  { scrambled: "teb", answer: "bet", hint: "To wager something" },
+  { scrambled: "nuf", answer: "fun", hint: "Enjoyment and play" },
+  { scrambled: "tpo", answer: "pot", hint: "Cook food in this" },
+  { scrambled: "deb", answer: "bed", hint: "Sleep on this" },
+  { scrambled: "tne", answer: "net", hint: "Catches fish or butterflies" },
+  { scrambled: "puc", answer: "cup", hint: "Drink from this" },
+  { scrambled: "gub", answer: "bug", hint: "Small crawling insect" },
+  { scrambled: "xob", answer: "box", hint: "Put things inside" },
+]
+
+// Spell Bee - spelling challenge
+const spellBeeWords: WordPuzzle[] = [
   { scrambled: "laepp", answer: "apple", hint: "A red or green fruit" },
   { scrambled: "naeco", answer: "ocean", hint: "The largest body of water" },
   { scrambled: "plaen", answer: "plane", hint: "Flies through the sky" },
@@ -35,26 +51,59 @@ const mediumWords: WordPuzzle[] = [
   { scrambled: "atreh", answer: "earth", hint: "Our home planet" },
   { scrambled: "sumci", answer: "music", hint: "Songs and melodies" },
   { scrambled: "gaicm", answer: "magic", hint: "Tricks and illusions" },
-  { scrambled: "ardgon", answer: "dragon", hint: "Mythical fire-breathing creature" },
   { scrambled: "stofre", answer: "forest", hint: "Full of trees and wildlife" },
-  { scrambled: "kecort", answer: "rocket", hint: "Goes to outer space" },
 ]
 
-const hardWords: WordPuzzle[] = [
+// Story Crafter - story-related vocabulary
+const storyCrafterWords: WordPuzzle[] = [
+  { scrambled: "ardgon", answer: "dragon", hint: "Mythical fire-breathing creature" },
+  { scrambled: "slteca", answer: "castle", hint: "Where royalty lives" },
+  { scrambled: "stproes", answer: "protest", hint: "Speak out against something" },
+  { scrambled: "roeh", answer: "hero", hint: "Saves the day" },
+  { scrambled: "gamic", answer: "magic", hint: "Supernatural powers" },
+  { scrambled: "stqeu", answer: "quest", hint: "A long journey or search" },
+  { scrambled: "knhgit", answer: "knight", hint: "Armored warrior" },
+  { scrambled: "rwzida", answer: "wizard", hint: "Magical spellcaster" },
+]
+
+// Reading Rally - comprehension vocabulary
+const readingRallyWords: WordPuzzle[] = [
   { scrambled: "yartivg", answer: "gravity", hint: "Force that keeps us grounded" },
-  { scrambled: "moleclue", answer: "molecule", hint: "Smallest unit of a substance" },
   { scrambled: "baryril", answer: "library", hint: "Building full of books" },
-  { scrambled: "tropecjl", answer: "projectl", hint: "Something you work on" },
   { scrambled: "nocvalo", answer: "volcano", hint: "Mountain that erupts lava" },
   { scrambled: "retupmoc", answer: "computer", hint: "Electronic device for work and play" },
   { scrambled: "odsiruna", answer: "dinosaur", hint: "Extinct reptile from long ago" },
-  { scrambled: "talasncdi", answer: "distance", hint: "How far apart things are" },
+  { scrambled: "talsnedi", answer: "distance", hint: "How far apart things are" },
   { scrambled: "etrapnci", answer: "patience", hint: "Ability to wait calmly" },
   { scrambled: "lhaclegne", answer: "challenge", hint: "A test of skill or ability" },
 ]
 
-function getWords(difficulty: Game["difficulty"]): WordPuzzle[] {
-  const pool = difficulty === "easy" ? easyWords : difficulty === "medium" ? mediumWords : hardWords
+function getWords(gameId: string, difficulty: Game["difficulty"]): WordPuzzle[] {
+  let pool: WordPuzzle[]
+  
+  switch (gameId) {
+    case "lang-words":
+      pool = wordBuilderWords
+      break
+    case "lang-phonics":
+      pool = phonicsWords
+      break
+    case "lang-spelling":
+      pool = spellBeeWords
+      break
+    case "lang-story":
+      pool = storyCrafterWords
+      break
+    case "lang-reading":
+      pool = readingRallyWords
+      break
+    default:
+      // Fallback to difficulty-based
+      if (difficulty === "easy") pool = [...wordBuilderWords, ...phonicsWords]
+      else if (difficulty === "medium") pool = [...spellBeeWords, ...storyCrafterWords]
+      else pool = readingRallyWords
+  }
+  
   return [...pool].sort(() => Math.random() - 0.5).slice(0, 8)
 }
 
@@ -64,7 +113,7 @@ interface WordGameProps {
 }
 
 export function WordGame({ game, onComplete }: WordGameProps) {
-  const [words] = useState(() => getWords(game.difficulty))
+  const [words] = useState(() => getWords(game.id, game.difficulty))
   const [currentW, setCurrentW] = useState(0)
   const [score, setScore] = useState(0)
   const [guess, setGuess] = useState("")

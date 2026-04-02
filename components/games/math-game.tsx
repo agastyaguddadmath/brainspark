@@ -12,37 +12,138 @@ interface MathQuestion {
   question: string
   answer: number
   options: number[]
+  hint?: string
 }
 
-function generateQuestion(difficulty: Game["difficulty"]): MathQuestion {
-  let a: number, b: number, op: string, answer: number
+function generateQuestion(gameId: string, difficulty: Game["difficulty"]): MathQuestion {
+  let a: number, b: number, op: string, answer: number, hint: string = ""
 
-  if (difficulty === "easy") {
-    a = Math.floor(Math.random() * 10) + 1
-    b = Math.floor(Math.random() * 10) + 1
-    op = "+"
-    answer = a + b
-  } else if (difficulty === "medium") {
-    const ops = ["+", "-", "*"]
-    op = ops[Math.floor(Math.random() * ops.length)]
-    a = Math.floor(Math.random() * 20) + 5
-    b = Math.floor(Math.random() * 10) + 1
-    if (op === "+") answer = a + b
-    else if (op === "-") answer = a - b
-    else answer = a * b
-  } else {
-    const ops = ["+", "-", "*", "/"]
-    op = ops[Math.floor(Math.random() * ops.length)]
-    if (op === "/") {
-      b = Math.floor(Math.random() * 10) + 2
-      answer = Math.floor(Math.random() * 12) + 1
+  switch (gameId) {
+    case "math-addition": {
+      // Addition-focused questions
+      if (difficulty === "easy") {
+        a = Math.floor(Math.random() * 10) + 1
+        b = Math.floor(Math.random() * 10) + 1
+      } else {
+        a = Math.floor(Math.random() * 50) + 10
+        b = Math.floor(Math.random() * 50) + 10
+      }
+      op = "+"
+      answer = a + b
+      hint = "Add the two numbers together"
+      break
+    }
+    case "math-multiplication": {
+      // Multiplication tables
+      if (difficulty === "easy") {
+        a = Math.floor(Math.random() * 5) + 1
+        b = Math.floor(Math.random() * 5) + 1
+      } else if (difficulty === "medium") {
+        a = Math.floor(Math.random() * 10) + 2
+        b = Math.floor(Math.random() * 10) + 2
+      } else {
+        a = Math.floor(Math.random() * 12) + 2
+        b = Math.floor(Math.random() * 12) + 2
+      }
+      op = "×"
+      answer = a * b
+      hint = `Multiply ${a} times ${b}`
+      break
+    }
+    case "math-counting": {
+      // Simple counting for kindergarten
+      a = Math.floor(Math.random() * 5) + 1
+      b = Math.floor(Math.random() * 5) + 1
+      op = "+"
+      answer = a + b
+      hint = "Count up from the first number"
+      break
+    }
+    case "math-fractions": {
+      // Fraction questions (represented as division)
+      const numerators = [1, 2, 3, 4, 5, 6, 8, 10]
+      const denominators = [2, 3, 4, 5, 8, 10]
+      b = denominators[Math.floor(Math.random() * denominators.length)]
+      answer = numerators[Math.floor(Math.random() * numerators.length)]
       a = b * answer
-    } else {
-      a = Math.floor(Math.random() * 50) + 10
-      b = Math.floor(Math.random() * 30) + 5
-      if (op === "+") answer = a + b
-      else if (op === "-") answer = a - b
-      else answer = a * b
+      op = "÷"
+      hint = `What is ${a} divided by ${b}?`
+      break
+    }
+    case "math-algebra": {
+      // Simple algebra: find x
+      b = Math.floor(Math.random() * 10) + 2
+      answer = Math.floor(Math.random() * 15) + 1
+      a = b + answer
+      op = "−"
+      hint = `If x + ${b} = ${a}, what is x?`
+      // Represent as: a - b = x
+      break
+    }
+    case "math-geometry": {
+      // Area and perimeter calculations
+      const shapes = ["square", "rectangle"]
+      const shape = shapes[Math.floor(Math.random() * shapes.length)]
+      if (shape === "square") {
+        a = Math.floor(Math.random() * 8) + 2
+        const isArea = Math.random() > 0.5
+        if (isArea) {
+          answer = a * a
+          hint = `Area of a square with side ${a}`
+          op = "²"
+          b = 0
+        } else {
+          answer = a * 4
+          hint = `Perimeter of a square with side ${a}`
+          op = "×4"
+          b = 4
+        }
+      } else {
+        a = Math.floor(Math.random() * 6) + 2
+        b = Math.floor(Math.random() * 6) + 2
+        const isArea = Math.random() > 0.5
+        if (isArea) {
+          answer = a * b
+          hint = `Area of ${a} × ${b} rectangle`
+          op = "×"
+        } else {
+          answer = 2 * (a + b)
+          hint = `Perimeter of ${a} × ${b} rectangle`
+          op = "P"
+        }
+      }
+      break
+    }
+    default: {
+      // Default mixed math
+      if (difficulty === "easy") {
+        a = Math.floor(Math.random() * 10) + 1
+        b = Math.floor(Math.random() * 10) + 1
+        op = "+"
+        answer = a + b
+      } else if (difficulty === "medium") {
+        const ops = ["+", "−", "×"]
+        op = ops[Math.floor(Math.random() * ops.length)]
+        a = Math.floor(Math.random() * 20) + 5
+        b = Math.floor(Math.random() * 10) + 1
+        if (op === "+") answer = a + b
+        else if (op === "−") answer = a - b
+        else answer = a * b
+      } else {
+        const ops = ["+", "−", "×", "÷"]
+        op = ops[Math.floor(Math.random() * ops.length)]
+        if (op === "÷") {
+          b = Math.floor(Math.random() * 10) + 2
+          answer = Math.floor(Math.random() * 12) + 1
+          a = b * answer
+        } else {
+          a = Math.floor(Math.random() * 50) + 10
+          b = Math.floor(Math.random() * 30) + 5
+          if (op === "+") answer = a + b
+          else if (op === "−") answer = a - b
+          else answer = a * b
+        }
+      }
     }
   }
 
@@ -51,13 +152,26 @@ function generateQuestion(difficulty: Game["difficulty"]): MathQuestion {
     const offset = Math.floor(Math.random() * 10) - 5
     const wrong = answer! + offset
     if (wrong !== answer! && wrong > 0) options.add(wrong)
-    else options.add(Math.floor(Math.random() * (answer! * 2)) + 1)
+    else options.add(Math.max(1, Math.floor(Math.random() * (answer! * 2)) + 1))
+  }
+
+  // Format question based on game type
+  let questionText: string
+  if (gameId === "math-geometry" && op === "²") {
+    questionText = `${a}² = ?`
+  } else if (gameId === "math-geometry" && op === "P") {
+    questionText = `Perimeter: ${a} × ${b}`
+  } else if (gameId === "math-algebra") {
+    questionText = `x + ${b} = ${a}, x = ?`
+  } else {
+    questionText = `${a} ${op} ${b} = ?`
   }
 
   return {
-    question: `${a} ${op} ${b} = ?`,
+    question: questionText,
     answer: answer!,
     options: Array.from(options).sort(() => Math.random() - 0.5),
+    hint,
   }
 }
 
@@ -74,7 +188,7 @@ export function MathGame({ game, onComplete }: MathGameProps) {
   const [selected, setSelected] = useState<number | null>(null)
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
   const [questions] = useState(() =>
-    Array.from({ length: totalQuestions }, () => generateQuestion(game.difficulty))
+    Array.from({ length: totalQuestions }, () => generateQuestion(game.id, game.difficulty))
   )
   const [finished, setFinished] = useState(false)
   const [timeLeft, setTimeLeft] = useState(game.difficulty === "easy" ? 120 : game.difficulty === "medium" ? 90 : 60)
