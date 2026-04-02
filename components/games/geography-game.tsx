@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -115,6 +115,7 @@ export function GeographyGame({ game, onComplete }: GeographyGameProps) {
   const [showResult, setShowResult] = useState(false)
   const [gameState, setGameState] = useState<"playing" | "complete">("playing")
   const totalQuestions = 8
+  const hasCompletedRef = useRef(false)
 
   useEffect(() => {
     // Shuffle and pick questions
@@ -138,8 +139,11 @@ export function GeographyGame({ game, onComplete }: GeographyGameProps) {
     if (currentIndex + 1 >= totalQuestions) {
       setGameState("complete")
       // Score is already updated, use it directly
-      const finalScore = Math.min(score, game.maxScore)
-      onComplete(finalScore, game.maxScore)
+      if (!hasCompletedRef.current) {
+        hasCompletedRef.current = true
+        const finalScore = Math.min(score, game.maxScore)
+        onComplete(finalScore, game.maxScore)
+      }
     } else {
       setCurrentIndex(prev => prev + 1)
       setSelectedAnswer(null)

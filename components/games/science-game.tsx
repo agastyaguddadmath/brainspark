@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -64,6 +64,7 @@ export function ScienceGame({ game, onComplete }: ScienceGameProps) {
   const [selected, setSelected] = useState<number | null>(null)
   const [finished, setFinished] = useState(false)
   const [showFact, setShowFact] = useState(false)
+  const hasCompletedRef = useRef(false)
 
   const handleAnswer = useCallback(
     (index: number) => {
@@ -87,7 +88,10 @@ export function ScienceGame({ game, onComplete }: ScienceGameProps) {
   )
 
   useEffect(() => {
-    if (finished) onComplete(score, questions.length * 12)
+    if (finished && !hasCompletedRef.current) {
+      hasCompletedRef.current = true
+      onComplete(score, questions.length * 12)
+    }
   }, [finished, score, questions.length, onComplete])
 
   if (finished) {

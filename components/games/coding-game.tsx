@@ -107,6 +107,7 @@ export function CodingGame({ game, onComplete }: CodingGameProps) {
   const [finished, setFinished] = useState(false)
   const [totalScore, setTotalScore] = useState(0)
   const runRef = useRef(false)
+  const hasCompletedRef = useRef(false)
 
   const level = levels[levelIndex]
 
@@ -198,7 +199,10 @@ export function CodingGame({ game, onComplete }: CodingGameProps) {
   }, [levelIndex])
 
   useEffect(() => {
-    if (finished) onComplete(totalScore, 100)
+    if (finished && !hasCompletedRef.current) {
+      hasCompletedRef.current = true
+      onComplete(totalScore, 100)
+    }
   }, [finished, totalScore, onComplete])
 
   if (finished) {

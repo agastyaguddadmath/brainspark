@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -71,6 +71,7 @@ export function WordGame({ game, onComplete }: WordGameProps) {
   const [result, setResult] = useState<boolean | null>(null)
   const [showHint, setShowHint] = useState(false)
   const [finished, setFinished] = useState(false)
+  const hasCompletedRef = useRef(false)
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -95,7 +96,10 @@ export function WordGame({ game, onComplete }: WordGameProps) {
   )
 
   useEffect(() => {
-    if (finished) onComplete(score, words.length * 12)
+    if (finished && !hasCompletedRef.current) {
+      hasCompletedRef.current = true
+      onComplete(score, words.length * 12)
+    }
   }, [finished, score, words.length, onComplete])
 
   if (finished) {

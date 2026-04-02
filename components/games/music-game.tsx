@@ -75,6 +75,7 @@ export function MusicGame({ game, onComplete }: MusicGameProps) {
   const [round, setRound] = useState(1)
   const [roundsCompleted, setRoundsCompleted] = useState(0)
   const audioContextRef = useRef<AudioContext | null>(null)
+  const hasCompletedRef = useRef(false)
 
   const playNote = useCallback((frequency: number) => {
     if (!audioContextRef.current) {
@@ -113,9 +114,12 @@ export function MusicGame({ game, onComplete }: MusicGameProps) {
         setRoundsCompleted(prev => prev + 1)
         if (round >= 3) {
           // Game complete
-          const finalScore = Math.min(Math.max(0, score + 10 - (mistakes * 5)), game.maxScore)
-          setGameState("complete")
-          onComplete(finalScore, game.maxScore)
+          if (!hasCompletedRef.current) {
+            hasCompletedRef.current = true
+            const finalScore = Math.min(Math.max(0, score + 10 - (mistakes * 5)), game.maxScore)
+            setGameState("complete")
+            onComplete(finalScore, game.maxScore)
+          }
         } else {
           // Next round
           setRound(prev => prev + 1)
