@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Sparkles, Eye, EyeOff, Baby, Users, GraduationCap, Shield, User } from "lucide-react"
+import { Sparkles, Eye, EyeOff, Baby, Users, GraduationCap, Shield, User, Mail, ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 
 export default function SignUpPage() {
@@ -19,6 +19,7 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [role, setRole] = useState<UserRole>("child")
   const [ageGroup, setAgeGroup] = useState<AgeGroup>("below8")
+  const [parentEmail, setParentEmail] = useState("")
   const [loading, setLoading] = useState(false)
   const { signUp } = useAuth()
   const router = useRouter()
@@ -31,9 +32,21 @@ export default function SignUpPage() {
       return
     }
     
+    if (role === "child" && !parentEmail.trim()) {
+      toast.error("Please enter your parent's email address")
+      return
+    }
+    
     setLoading(true)
     try {
-      const success = await signUp({ name, email, password, role, ageGroup })
+      const success = await signUp({ 
+        name, 
+        email, 
+        password, 
+        role, 
+        ageGroup,
+        parentEmail: role === "child" ? parentEmail : undefined
+      })
       setLoading(false)
       if (success) {
         toast.success("Account created! Welcome to BrainSpark!")
@@ -95,7 +108,7 @@ export default function SignUpPage() {
           </Link>
 
           <div className="mb-6 flex gap-2">
-            {[1, 2].map((s) => (
+            {[1, 2, 3].map((s) => (
               <div
                 key={s}
                 className={`h-1.5 flex-1 rounded-full transition-colors ${
@@ -106,12 +119,18 @@ export default function SignUpPage() {
           </div>
 
           <h1 className="text-2xl font-bold text-foreground">
-            {step === 1 ? "Create Your BrainSpark Account" : "Tell Us About Yourself"}
+            {step === 1 
+              ? "Create Your BrainSpark Account" 
+              : step === 2 
+                ? "Tell Us About Yourself"
+                : "Link to Parent Account"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {step === 1
               ? "Enter your details to create your personal learning account."
-              : "Help us personalize your BrainSpark experience."}
+              : step === 2
+                ? "Help us personalize your BrainSpark experience."
+                : "Enter your parent's email so they can monitor your progress."}
           </p>
 
           <form onSubmit={handleSubmit} className="mt-8">
@@ -282,7 +301,68 @@ export default function SignUpPage() {
                   >
                     Back
                   </Button>
-                  <Button type="submit" className="flex-1" disabled={loading}>
+                  {role === "child" ? (
+                    <Button 
+                      type="button" 
+                      className="flex-1"
+                      onClick={() => setStep(3)}
+                    >
+                      Continue
+                    </Button>
+                  ) : (
+                    <Button type="submit" className="flex-1" disabled={loading}>
+                      {loading ? "Creating..." : "Create Account"}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="space-y-6">
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                      <Mail className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">
+                        Parent Account Link
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Your parent will be able to see your progress
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="parentEmail">Parent&apos;s Email Address</Label>
+                  <Input
+                    id="parentEmail"
+                    type="email"
+                    placeholder="parent@email.com"
+                    value={parentEmail}
+                    onChange={(e) => setParentEmail(e.target.value)}
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Enter the email address your parent uses for their BrainSpark account. 
+                    They will be able to view your game progress and learning achievements.
+                  </p>
+                </div>
+
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setStep(2)}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back
+                  </Button>
+                  <Button type="submit" className="flex-1" disabled={loading || !parentEmail.trim()}>
                     {loading ? "Creating..." : "Create Account"}
                   </Button>
                 </div>

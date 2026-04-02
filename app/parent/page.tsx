@@ -8,6 +8,13 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
 import { OverviewStats } from "@/components/parent/overview-stats"
 import { ActivityLog } from "@/components/parent/activity-log"
 import { ControlsPanel } from "@/components/parent/controls-panel"
@@ -23,8 +30,10 @@ import {
   BarChart3,
   Brain,
   LogIn,
+  Users,
+  ChevronDown,
 } from "lucide-react"
-import { useEffect } from "react"
+import { useEffect, useState, useMemo } from "react"
 import Link from "next/link"
 
 function AccessDenied() {
@@ -75,8 +84,19 @@ function AccessDenied() {
 }
 
 export default function ParentDashboard() {
-  const { user, isAuthenticated, updateParentalControls } = useAuth()
+  const { user, isAuthenticated, updateParentalControls, getLinkedChildren } = useAuth()
   const router = useRouter()
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(null)
+  
+  const linkedChildren = useMemo(() => getLinkedChildren(), [getLinkedChildren])
+  
+  // Get the active profile to display (selected child or parent's own data)
+  const activeProfile = useMemo(() => {
+    if (selectedChildId) {
+      return linkedChildren.find(c => c.id === selectedChildId) || user
+    }
+    return user
+  }, [selectedChildId, linkedChildren, user])
 
   useEffect(() => {
     if (!user) return
@@ -97,7 +117,7 @@ export default function ParentDashboard() {
             <div className="flex items-center gap-4">
               <Avatar className="h-14 w-14">
                 <AvatarFallback className="bg-primary text-lg text-primary-foreground">
-                  {user.avatar}
+                  {activeProfile?.avatar || user.avatar}
                 </AvatarFallback>
               </Avatar>
               <div>
@@ -111,12 +131,71 @@ export default function ParentDashboard() {
                   </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Monitor activity, set controls, and track {user.name}
-                  {"'s"} learning progress
+                  {selectedChildId && activeProfile
+                    ? `Viewing ${activeProfile.name}'s learning progress`
+                    : `Monitor activity, set controls, and track your children's learning progress`}
                 </p>
               </div>
             </div>
+            
+            {/* Child Selector */}
+            {linkedChildren.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    <Users className="h-4 w-4" />
+                    {selectedChildId 
+                      ? linkedChildren.find(c => c.id === selectedChildId)?.name || "Select Child"
+                      : "Select Child"}
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {linkedChildren.map((child) => (
+                    <DropdownMenuItem
+                      key={child.id}
+                      onClick={() => setSelectedChildId(child.id)}
+                      className={selectedChildId === child.id ? "bg-accent" : ""}
+                    >
+                      <Avatar className="mr-2 h-6 w-6">
+                        <AvatarFallback className="text-xs">
+                          {child.avatar}
+                        </AvatarFallback>
+                      </Avatar>
+                      {child.name}
+                    </DropdownMenuItem>
+                  ))}
+                  {selectedChildId && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => setSelectedChildId(null)}>
+                        View All (My Data)
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
+          
+          {/* No Children Linked Message */}
+          {linkedChildren.length === 0 && (
+            <div className="mt-4 rounded-xl border border-border bg-card p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+                  <Users className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">
+                    No Children Linked Yet
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    When your children create accounts with your email ({user.email}), they will appear here.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Tabs */}
           <Tabs defaultValue="overview" className="mt-8">
@@ -167,19 +246,19 @@ export default function ParentDashboard() {
 
             <div className="mt-6">
               <TabsContent value="overview">
-                <OverviewStats user={user} />
+                <OverviewStats user={activeProfile || user} />
               </TabsContent>
 
               <TabsContent value="activity">
-                <ActivityLog history={user.gameHistory} />
+                <ActivityLog history={activeProfile?.gameHistory || user.gameHistory} />
               </TabsContent>
 
               <TabsContent value="progress">
-                <ProgressCharts history={user.gameHistory} />
+                <ProgressCharts history={activeProfile?.gameHistory || user.gameHistory} />
               </TabsContent>
 
               <TabsContent value="iq">
-                <IqTracker scores={user.iqScores} />
+                <IqTracker scores={activeProfile?.iqScores || user.iqScores} />
               </TabsContent>
 
               <TabsContent value="controls">
