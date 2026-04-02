@@ -2,14 +2,8 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react"
 
-export type UserRole = "child" | "parent" | "guest"
+export type UserRole = "child" | "guest"
 export type AgeGroup = "kindergarten" | "below8" | "below14"
-
-export interface ParentalControls {
-  maxDailyMinutes: number
-  allowedCategories: string[]
-  restrictedGames: string[]
-}
 
 export interface GameScore {
   gameId: string
@@ -29,13 +23,11 @@ export interface UserProfile {
   role: UserRole
   ageGroup: AgeGroup
   avatar: string
-  parentalControls: ParentalControls
   gameHistory: GameScore[]
   iqScores: number[]
   totalPlayTime: number
   streakDays: number
   joinedAt: string
-  parentEmail?: string // For child accounts - links to parent's account
 }
 
 export type OAuthProvider = "google" | "microsoft"
@@ -53,8 +45,6 @@ interface AuthContextType {
   updateProfile: (updates: Partial<UserProfile>) => void
   addGameScore: (score: GameScore) => void
   addIqScore: (score: number) => void
-  updateParentalControls: (controls: Partial<ParentalControls>) => void
-  getLinkedChildren: () => UserProfile[]
 }
 
 interface OAuthUserData {
@@ -67,9 +57,7 @@ interface SignUpData {
   name: string
   email: string
   password: string
-  role: UserRole
   ageGroup: AgeGroup
-  parentEmail?: string // Required for child accounts
 }
 
 const GUEST_TIME_LIMIT = 15 * 60
@@ -114,20 +102,15 @@ function getCurrentUser(): UserProfile | null {
 }
 
 const demoUsers: Record<string, { password: string; profile: UserProfile }> = {
-  "parent@brainspark.com": {
-    password: "parent123",
+  "demo@brainspark.com": {
+    password: "demo123",
     profile: {
-      id: "usr_parent_1",
-      name: "Sarah Johnson",
-      email: "parent@brainspark.com",
-      role: "parent",
-      ageGroup: "below14",
-      avatar: "SJ",
-      parentalControls: {
-        maxDailyMinutes: 60,
-        allowedCategories: ["math", "science", "language", "coding", "identification", "art", "music", "geography", "iq"],
-        restrictedGames: [],
-      },
+      id: "usr_demo_1",
+      name: "Alex Johnson",
+      email: "demo@brainspark.com",
+      role: "child",
+      ageGroup: "below8",
+      avatar: "AJ",
       gameHistory: [
         { gameId: "math-1", gameName: "Number Quest", category: "math", score: 85, maxScore: 100, rating: 4, completedAt: "2026-02-20T10:00:00Z", ageGroup: "below8" },
         { gameId: "sci-1", gameName: "Lab Explorer", category: "science", score: 92, maxScore: 100, rating: 5, completedAt: "2026-02-21T14:30:00Z", ageGroup: "below8" },
@@ -139,31 +122,6 @@ const demoUsers: Record<string, { password: string; profile: UserProfile }> = {
       totalPlayTime: 2450,
       streakDays: 7,
       joinedAt: "2026-01-15T08:00:00Z",
-    },
-  },
-  "child@brainspark.com": {
-    password: "child123",
-    profile: {
-      id: "usr_child_1",
-      name: "Alex Johnson",
-      email: "child@brainspark.com",
-      role: "child",
-      ageGroup: "below8",
-      avatar: "AJ",
-      parentalControls: {
-        maxDailyMinutes: 60,
-        allowedCategories: ["math", "science", "language", "coding", "identification", "art", "music", "geography", "iq"],
-        restrictedGames: [],
-      },
-      gameHistory: [
-        { gameId: "math-1", gameName: "Number Quest", category: "math", score: 85, maxScore: 100, rating: 4, completedAt: "2026-02-20T10:00:00Z", ageGroup: "below8" },
-        { gameId: "sci-1", gameName: "Lab Explorer", category: "science", score: 92, maxScore: 100, rating: 5, completedAt: "2026-02-21T14:30:00Z", ageGroup: "below8" },
-        { gameId: "lang-1", gameName: "Word Builder", category: "language", score: 78, maxScore: 100, rating: 3, completedAt: "2026-02-22T09:15:00Z", ageGroup: "below8" },
-      ],
-      iqScores: [105, 112],
-      totalPlayTime: 1200,
-      streakDays: 5,
-      joinedAt: "2026-01-20T08:00:00Z",
     },
   },
 }
@@ -256,14 +214,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       id: `usr_${provider}_${Date.now()}`,
       name: userData.name,
       email: userData.email,
-      role: "parent", // Default to parent for OAuth users
+      role: "child",
       ageGroup: "below14",
       avatar: userData.avatar || userData.name.split(" ").map((n) => n[0]).join("").toUpperCase(),
-      parentalControls: {
-        maxDailyMinutes: 60,
-        allowedCategories: ["math", "science", "language", "coding", "identification", "art", "music", "geography", "iq"],
-        restrictedGames: [],
-      },
       gameHistory: [],
       iqScores: [],
       totalPlayTime: 0,
@@ -295,20 +248,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       id: `usr_${Date.now()}`,
       name: data.name,
       email: data.email,
-      role: data.role,
+      role: "child",
       ageGroup: data.ageGroup,
       avatar: data.name.split(" ").map((n) => n[0]).join("").toUpperCase(),
-      parentalControls: {
-        maxDailyMinutes: 60,
-        allowedCategories: ["math", "science", "language", "coding", "identification", "art", "music", "geography", "iq"],
-        restrictedGames: [],
-      },
       gameHistory: [],
       iqScores: [],
       totalPlayTime: 0,
       streakDays: 0,
       joinedAt: new Date().toISOString(),
-      parentEmail: data.role === "child" ? data.parentEmail : undefined,
     }
     
     // Store the new user
@@ -333,11 +280,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       role: "guest",
       ageGroup: "below8",
       avatar: "EX",
-      parentalControls: {
-        maxDailyMinutes: 15,
-        allowedCategories: ["math", "science", "language"],
-        restrictedGames: [],
-      },
       gameHistory: [],
       iqScores: [],
       totalPlayTime: 0,
@@ -377,43 +319,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     )
   }, [])
 
-  const updateParentalControls = useCallback(
-    (controls: Partial<ParentalControls>) => {
-      setUser((prev) =>
-        prev
-          ? {
-              ...prev,
-              parentalControls: { ...prev.parentalControls, ...controls },
-            }
-          : null
-      )
-    },
-    []
-  )
-
-  const getLinkedChildren = useCallback((): UserProfile[] => {
-    if (!user || user.role !== "parent") return []
-    
-    const storedUsers = getStoredUsers()
-    const children: UserProfile[] = []
-    
-    // Find all children linked to this parent's email
-    Object.values(storedUsers).forEach(({ profile }) => {
-      if (profile.role === "child" && profile.parentEmail === user.email) {
-        children.push(profile)
-      }
-    })
-    
-    // Also check demo users
-    Object.values(demoUsers).forEach(({ profile }) => {
-      if (profile.role === "child" && profile.parentEmail === user.email) {
-        children.push(profile)
-      }
-    })
-    
-    return children
-  }, [user])
-
   return (
     <AuthContext.Provider
       value={{
@@ -429,8 +334,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         updateProfile,
         addGameScore,
         addIqScore,
-        updateParentalControls,
-        getLinkedChildren,
       }}
     >
       {children}

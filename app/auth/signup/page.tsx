@@ -3,12 +3,12 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useAuth, type AgeGroup, type UserRole } from "@/lib/auth-context"
+import { useAuth, type AgeGroup } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Sparkles, Eye, EyeOff, Baby, Users, GraduationCap, Shield, User, Mail, ArrowLeft } from "lucide-react"
+import { Sparkles, Eye, EyeOff, Baby, Users, GraduationCap } from "lucide-react"
 import { toast } from "sonner"
 
 export default function SignUpPage() {
@@ -17,9 +17,7 @@ export default function SignUpPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [role, setRole] = useState<UserRole>("child")
   const [ageGroup, setAgeGroup] = useState<AgeGroup>("below8")
-  const [parentEmail, setParentEmail] = useState("")
   const [loading, setLoading] = useState(false)
   const { signUp } = useAuth()
   const router = useRouter()
@@ -32,20 +30,13 @@ export default function SignUpPage() {
       return
     }
     
-    if (role === "child" && !parentEmail.trim()) {
-      toast.error("Please enter your parent's email address")
-      return
-    }
-    
     setLoading(true)
     try {
       const success = await signUp({ 
         name, 
         email, 
         password, 
-        role, 
         ageGroup,
-        parentEmail: role === "child" ? parentEmail : undefined
       })
       setLoading(false)
       if (success) {
@@ -54,7 +45,7 @@ export default function SignUpPage() {
       } else {
         toast.error("Email already in use. Try signing in instead.")
       }
-    } catch (error) {
+    } catch {
       setLoading(false)
       toast.error("Something went wrong. Please try again.")
     }
@@ -74,9 +65,9 @@ export default function SignUpPage() {
             Create Your BrainSpark Account
           </h2>
           <p className="mt-4 max-w-md text-accent-foreground/70">
-            Join thousands of families making learning fun. Your free BrainSpark 
+            Join thousands of learners making education fun. Your free BrainSpark 
             account gives you access to all educational games, progress tracking, 
-            IQ assessments, and parental controls.
+            and IQ assessments.
           </p>
           <ul className="mt-6 space-y-2 text-accent-foreground/80">
             <li className="flex items-center gap-2">
@@ -85,16 +76,12 @@ export default function SignUpPage() {
             </li>
             <li className="flex items-center gap-2">
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-foreground/20 text-xs">2</span>
-              Choose your profile type
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-foreground/20 text-xs">3</span>
-              Start learning and playing
+              Select your age group
             </li>
           </ul>
         </div>
         <p className="text-sm text-accent-foreground/50">
-          Join 50,000+ families learning through play.
+          Join 50,000+ learners having fun.
         </p>
       </div>
 
@@ -108,7 +95,7 @@ export default function SignUpPage() {
           </Link>
 
           <div className="mb-6 flex gap-2">
-            {[1, 2, 3].map((s) => (
+            {[1, 2].map((s) => (
               <div
                 key={s}
                 className={`h-1.5 flex-1 rounded-full transition-colors ${
@@ -121,16 +108,12 @@ export default function SignUpPage() {
           <h1 className="text-2xl font-bold text-foreground">
             {step === 1 
               ? "Create Your BrainSpark Account" 
-              : step === 2 
-                ? "Tell Us About Yourself"
-                : "Link to Parent Account"}
+              : "Tell Us About Yourself"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {step === 1
               ? "Enter your details to create your personal learning account."
-              : step === 2
-                ? "Help us personalize your BrainSpark experience."
-                : "Enter your parent's email so they can monitor your progress."}
+              : "Help us personalize your BrainSpark experience."}
           </p>
 
           <form onSubmit={handleSubmit} className="mt-8">
@@ -201,40 +184,6 @@ export default function SignUpPage() {
             {step === 2 && (
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <Label>I am a...</Label>
-                  <RadioGroup
-                    value={role}
-                    onValueChange={(v) => setRole(v as UserRole)}
-                    className="grid grid-cols-2 gap-3"
-                  >
-                    <Label
-                      htmlFor="role-parent"
-                      className={`flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors ${
-                        role === "parent"
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/30"
-                      }`}
-                    >
-                      <RadioGroupItem value="parent" id="role-parent" className="sr-only" />
-                      <Shield className="h-6 w-6 text-primary" />
-                      <span className="text-sm font-medium">Parent</span>
-                    </Label>
-                    <Label
-                      htmlFor="role-child"
-                      className={`flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors ${
-                        role === "child"
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/30"
-                      }`}
-                    >
-                      <RadioGroupItem value="child" id="role-child" className="sr-only" />
-                      <User className="h-6 w-6 text-primary" />
-                      <span className="text-sm font-medium">Child</span>
-                    </Label>
-                  </RadioGroup>
-                </div>
-
-                <div className="space-y-3">
                   <Label>Age Group</Label>
                   <RadioGroup
                     value={ageGroup}
@@ -301,68 +250,7 @@ export default function SignUpPage() {
                   >
                     Back
                   </Button>
-                  {role === "child" ? (
-                    <Button 
-                      type="button" 
-                      className="flex-1"
-                      onClick={() => setStep(3)}
-                    >
-                      Continue
-                    </Button>
-                  ) : (
-                    <Button type="submit" className="flex-1" disabled={loading}>
-                      {loading ? "Creating..." : "Create Account"}
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {step === 3 && (
-              <div className="space-y-6">
-                <div className="rounded-xl border border-border bg-card p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                      <Mail className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">
-                        Parent Account Link
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Your parent will be able to see your progress
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="parentEmail">Parent&apos;s Email Address</Label>
-                  <Input
-                    id="parentEmail"
-                    type="email"
-                    placeholder="parent@email.com"
-                    value={parentEmail}
-                    onChange={(e) => setParentEmail(e.target.value)}
-                    required
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Enter the email address your parent uses for their BrainSpark account. 
-                    They will be able to view your game progress and learning achievements.
-                  </p>
-                </div>
-
-                <div className="flex gap-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => setStep(2)}
-                  >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back
-                  </Button>
-                  <Button type="submit" className="flex-1" disabled={loading || !parentEmail.trim()}>
+                  <Button type="submit" className="flex-1" disabled={loading}>
                     {loading ? "Creating..." : "Create Account"}
                   </Button>
                 </div>

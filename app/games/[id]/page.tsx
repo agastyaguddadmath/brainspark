@@ -72,8 +72,6 @@ export default function GamePlayPage({
   }
 
   const needsAuth = !game.guestAllowed && (!user || isGuest)
-  const isRestricted =
-    user && !isGuest && user.parentalControls.restrictedGames.includes(game.id)
 
   if (needsAuth) {
     return (
@@ -103,36 +101,6 @@ export default function GamePlayPage({
                 <Link href="/auth/signup">Create Account</Link>
               </Button>
             </div>
-          </div>
-        </main>
-        <SiteFooter />
-      </div>
-    )
-  }
-
-  if (isRestricted) {
-    return (
-      <div className="flex min-h-screen flex-col">
-        <SiteHeader />
-        <main className="flex flex-1 flex-col items-center justify-center bg-background px-4 py-16">
-          <div className="flex flex-col items-center text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-destructive/10">
-              <Lock className="h-8 w-8 text-destructive" />
-            </div>
-            <h1 className="mt-6 text-2xl font-bold text-foreground">
-              Game Restricted
-            </h1>
-            <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              <span className="font-semibold text-foreground">{game.name}</span>{" "}
-              has been restricted by your parent. Ask them to unblock this game
-              from the Parent Dashboard.
-            </p>
-            <Button className="mt-6" variant="outline" asChild>
-              <Link href="/games">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Games
-              </Link>
-            </Button>
           </div>
         </main>
         <SiteFooter />

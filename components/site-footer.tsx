@@ -50,7 +50,6 @@ export function SiteFooter() {
                 { label: "All Games", href: "/games" },
                 { label: "Progress Tracking", href: "/progress" },
                 { label: "IQ Assessment", href: "/categories/iq" },
-                { label: "Parent Dashboard", href: "/parent" },
               ].map((item) => (
                 <li key={item.label}>
                   <Link
