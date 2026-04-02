@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
@@ -77,6 +77,7 @@ export function MathGame({ game, onComplete }: MathGameProps) {
   )
   const [finished, setFinished] = useState(false)
   const [timeLeft, setTimeLeft] = useState(game.difficulty === "easy" ? 120 : game.difficulty === "medium" ? 90 : 60)
+  const hasCompletedRef = useRef(false)
 
   useEffect(() => {
     if (finished || timeLeft <= 0) return
@@ -121,7 +122,8 @@ export function MathGame({ game, onComplete }: MathGameProps) {
   )
 
   useEffect(() => {
-    if (finished) {
+    if (finished && !hasCompletedRef.current) {
+      hasCompletedRef.current = true
       const maxScore = totalQuestions * 10
       const finalScore = Math.min(score, maxScore) // Cap score at max
       onComplete(finalScore, maxScore)

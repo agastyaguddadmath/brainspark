@@ -1,6 +1,6 @@
 "use client"
 
-import { use } from "react"
+import { use, useCallback } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { getGameById, getCategoryById } from "@/lib/game-data"
 import { SiteHeader } from "@/components/site-header"
@@ -31,7 +31,7 @@ export default function GamePlayPage({
   const game = getGameById(id)
   const category = game ? getCategoryById(game.category) : null
 
-  const handleGameComplete = (score: number, maxScore: number) => {
+  const handleGameComplete = useCallback((score: number, maxScore: number) => {
     const stars = Math.ceil((score / maxScore) * 5)
     if (game && user) {
       addGameScore({
@@ -48,7 +48,7 @@ export default function GamePlayPage({
     toast.success(`Great job! You scored ${score}/${maxScore}`, {
       description: `You earned ${stars} star${stars !== 1 ? 's' : ''}!`,
     })
-  }
+  }, [game, user, addGameScore])
 
   if (!game) {
     return (

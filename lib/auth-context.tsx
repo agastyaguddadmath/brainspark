@@ -35,6 +35,7 @@ export interface UserProfile {
   totalPlayTime: number
   streakDays: number
   joinedAt: string
+  parentEmail?: string // For child accounts - links to parent's account
 }
 
 export type OAuthProvider = "google" | "microsoft"
@@ -53,6 +54,7 @@ interface AuthContextType {
   addGameScore: (score: GameScore) => void
   addIqScore: (score: number) => void
   updateParentalControls: (controls: Partial<ParentalControls>) => void
+  getLinkedChildren: () => UserProfile[]
 }
 
 interface OAuthUserData {
@@ -67,6 +69,7 @@ interface SignUpData {
   password: string
   role: UserRole
   ageGroup: AgeGroup
+  parentEmail?: string // Required for child accounts
 }
 
 const GUEST_TIME_LIMIT = 15 * 60
@@ -305,6 +308,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       totalPlayTime: 0,
       streakDays: 0,
       joinedAt: new Date().toISOString(),
+      parentEmail: data.role === "child" ? data.parentEmail : undefined,
     }
     
     // Store the new user
@@ -387,6 +391,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     []
   )
 
+  const getLinkedChildren = useCallback((): UserProfile[] => {
+    if (!user || user.role !== "parent") return []
+    
+    const storedUsers = getStoredUsers()
+    const children: UserProfile[] = []
+    
+    // Find all children linked to this parent's email
+    Object.values(storedUsers).forEach(({ profile }) => {
+      if (profile.role === "child" && profile.parentEmail === user.email) {
+        children.push(profile)
+      }
+    })
+    
+    // Also check demo users
+    Object.values(demoUsers).forEach(({ profile }) => {
+      if (profile.role === "child" && profile.parentEmail === user.email) {
+        children.push(profile)
+      }
+    })
+    
+    return children
+  }, [user])
+
   return (
     <AuthContext.Provider
       value={{
@@ -403,6 +430,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         addGameScore,
         addIqScore,
         updateParentalControls,
+        getLinkedChildren,
       }}
     >
       {children}
