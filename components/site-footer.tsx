@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Sparkles } from "lucide-react"
+import { Sparkles, Github } from "lucide-react"
 
 export function SiteFooter() {
   return (
@@ -16,6 +16,15 @@ export function SiteFooter() {
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
               Making learning fun and accessible for every child, every day.
             </p>
+            <a
+              href="https://github.com/agastyaguddadmath/brainspark"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <Github className="h-5 w-5" />
+              <span>View on GitHub</span>
+            </a>
           </div>
           <div>
             <h4 className="text-sm font-semibold text-foreground">Learn</h4>
