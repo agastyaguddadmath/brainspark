@@ -3,9 +3,9 @@
 import { useState, useCallback, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle2, XCircle, Trophy, RotateCw } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { CheckCircle2, XCircle, Trophy, RotateCw, Lightbulb, Type, Play, Star, Sparkles, Send } from "lucide-react"
 import type { Game } from "@/lib/game-data"
 
 interface WordPuzzle {
@@ -100,117 +100,182 @@ export function WordGame({ game, onComplete }: WordGameProps) {
 
   if (finished) {
     const percentage = Math.round((score / (words.length * 12)) * 100)
+    const stars = Math.ceil(percentage / 20)
+    
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[oklch(0.7_0.2_50/0.1)]">
-          <Trophy className="h-10 w-10 text-[oklch(0.7_0.2_50)]" />
-        </div>
-        <h2 className="mt-6 text-3xl font-bold text-foreground">
-          {percentage >= 80 ? "Word Wizard!" : percentage >= 50 ? "Nice Work!" : "Keep Learning!"}
-        </h2>
-        <p className="mt-2 text-lg text-muted-foreground">
-          You scored {score} out of {words.length * 12} points
-        </p>
-        <div className="mt-6 flex items-center gap-4">
-          <div className="rounded-xl bg-secondary p-4 text-center">
-            <div className="text-2xl font-bold text-foreground">{percentage}%</div>
-            <div className="text-xs text-muted-foreground">Accuracy</div>
-          </div>
-          <div className="rounded-xl bg-secondary p-4 text-center">
-            <div className="text-2xl font-bold text-foreground">{score}</div>
-            <div className="text-xs text-muted-foreground">Points</div>
+      <Card className="max-w-xl mx-auto overflow-hidden border-0 shadow-2xl">
+        <div className="relative bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 p-8 text-white text-center">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPjwvZz48L3N2Zz4=')] opacity-50" />
+          <div className="relative">
+            <div className="w-24 h-24 mx-auto mb-4 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-xl">
+              <Trophy className="w-12 h-12" />
+            </div>
+            <h2 className="text-3xl font-bold mb-2">
+              {percentage >= 80 ? "Word Wizard!" : percentage >= 50 ? "Nice Work!" : "Keep Learning!"}
+            </h2>
+            <p className="text-white/80">Word puzzle completed!</p>
           </div>
         </div>
-      </div>
+        
+        <CardContent className="p-8 bg-card">
+          <div className="flex justify-center gap-2 mb-6">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+                  i < stars
+                    ? "bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/30"
+                    : "bg-muted"
+                }`}
+              >
+                <Star
+                  className={`w-6 h-6 ${
+                    i < stars ? "text-white fill-white" : "text-muted-foreground"
+                  }`}
+                />
+              </div>
+            ))}
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="rounded-2xl border border-border bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 p-4 text-center">
+              <p className="text-3xl font-bold text-foreground">{percentage}%</p>
+              <p className="text-sm text-muted-foreground">Accuracy</p>
+            </div>
+            <div className="rounded-2xl border border-border bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/20 dark:to-amber-950/20 p-4 text-center">
+              <p className="text-3xl font-bold text-foreground">{score}</p>
+              <p className="text-sm text-muted-foreground">Points</p>
+            </div>
+          </div>
+          
+          <Button 
+            onClick={() => window.location.reload()} 
+            size="lg"
+            className="w-full h-14 text-lg bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600"
+          >
+            <Play className="w-5 h-5 mr-2" />
+            Play Again
+          </Button>
+        </CardContent>
+      </Card>
     )
   }
 
   const word = words[currentW]
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
-      <div className="flex items-center justify-between">
-        <Badge variant="outline">{currentW + 1}/{words.length}</Badge>
-        <span className="text-sm font-medium text-foreground">Score: {score}</span>
-      </div>
-
-      <Progress value={((currentW + 1) / words.length) * 100} className="h-2" />
-
-      <div className="rounded-2xl border border-border bg-card p-8 text-center">
-        <p className="text-sm font-medium text-muted-foreground">Unscramble this word:</p>
-        <div className="mt-4 flex justify-center gap-2">
-          {word.scrambled.split("").map((letter, i) => (
-            <div
-              key={i}
-              className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-xl font-bold uppercase text-primary"
-            >
-              {letter}
-            </div>
-          ))}
+    <div className="mx-auto max-w-xl space-y-6">
+      {/* Stats Bar */}
+      <div className="flex flex-wrap gap-3 items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/20">
+            <Type className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground">Word {currentW + 1} of {words.length}</p>
+            <p className="text-xs text-muted-foreground">Score: {score} pts</p>
+          </div>
         </div>
       </div>
 
+      {/* Progress */}
+      <div className="h-2 rounded-full bg-muted overflow-hidden">
+        <div 
+          className="h-full bg-gradient-to-r from-orange-500 to-amber-500 transition-all duration-300"
+          style={{ width: `${((currentW + 1) / words.length) * 100}%` }}
+        />
+      </div>
+
+      {/* Scrambled Word Card */}
+      <Card className="overflow-hidden border-0 shadow-xl">
+        <div className="bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-yellow-500/10 p-8 text-center">
+          <p className="text-sm font-medium text-muted-foreground mb-4">Unscramble the letters:</p>
+          <div className="flex justify-center gap-2 flex-wrap">
+            {word.scrambled.split("").map((letter, i) => (
+              <div
+                key={i}
+                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 text-2xl font-bold uppercase text-white shadow-lg shadow-orange-500/20 transform hover:scale-105 transition-transform"
+              >
+                {letter}
+              </div>
+            ))}
+          </div>
+        </div>
+      </Card>
+
+      {/* Hint Section */}
       {showHint && (
-        <div className="rounded-lg bg-[oklch(0.78_0.18_70/0.15)] p-3 text-center text-sm text-foreground">
-          Hint: {word.hint}
+        <div className="flex items-start gap-3 rounded-xl bg-gradient-to-r from-yellow-500/10 to-amber-500/10 p-4 border border-yellow-500/20">
+          <Lightbulb className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-xs font-medium text-amber-600 dark:text-amber-400">Hint</p>
+            <p className="text-sm text-foreground">{word.hint}</p>
+          </div>
         </div>
       )}
 
+      {/* Input Form */}
       <form onSubmit={handleSubmit} className="flex gap-2">
         <Input
           value={guess}
           onChange={(e) => setGuess(e.target.value)}
           placeholder="Type your answer..."
-          className="flex-1 text-center text-lg font-medium"
+          className="flex-1 text-center text-lg font-medium h-14 rounded-xl"
           disabled={result !== null}
           autoFocus
         />
-        <Button type="submit" disabled={result !== null || !guess.trim()}>
-          Check
+        <Button 
+          type="submit" 
+          disabled={result !== null || !guess.trim()}
+          className="h-14 px-6 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600"
+        >
+          <Send className="h-5 w-5" />
         </Button>
       </form>
 
+      {/* Action Buttons */}
       <div className="flex justify-center gap-3">
         {!showHint && (
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="text-xs text-muted-foreground"
+            className="rounded-lg gap-2"
             onClick={() => setShowHint(true)}
           >
-            Show hint (-4 pts)
+            <Lightbulb className="h-4 w-4" />
+            Show Hint (-4 pts)
           </Button>
         )}
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
-          className="gap-1 text-xs text-muted-foreground"
-          onClick={() => {
-            setGuess("")
-          }}
+          className="rounded-lg gap-2"
+          onClick={() => setGuess("")}
         >
-          <RotateCw className="h-3 w-3" />
+          <RotateCw className="h-4 w-4" />
           Clear
         </Button>
       </div>
 
+      {/* Result Feedback */}
       {result !== null && (
         <div
-          className={`flex items-center justify-center gap-2 rounded-lg p-3 text-sm font-medium ${
+          className={`flex items-center justify-center gap-2 rounded-xl p-4 font-medium ${
             result
-              ? "bg-[oklch(0.7_0.18_150/0.1)] text-[oklch(0.5_0.18_150)]"
-              : "bg-destructive/10 text-destructive"
+              ? "bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-700 dark:text-emerald-400"
+              : "bg-gradient-to-r from-rose-500/10 to-red-500/10 text-rose-700 dark:text-rose-400"
           }`}
         >
           {result ? (
             <>
               <CheckCircle2 className="h-5 w-5" />
-              Correct! The word is &quot;{word.answer}&quot;
+              <span>Correct! The word is <strong>&quot;{word.answer}&quot;</strong></span>
+              <Sparkles className="h-4 w-4" />
             </>
           ) : (
             <>
               <XCircle className="h-5 w-5" />
-              The answer was &quot;{word.answer}&quot;
+              <span>The answer was <strong>&quot;{word.answer}&quot;</strong></span>
             </>
           )}
         </div>
