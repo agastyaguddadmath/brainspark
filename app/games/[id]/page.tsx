@@ -12,6 +12,7 @@ import { CodingGame } from "@/components/games/coding-game"
 import { ArtGame } from "@/components/games/art-game"
 import { MusicGame } from "@/components/games/music-game"
 import { GeographyGame } from "@/components/games/geography-game"
+import { CountingGame } from "@/components/games/counting-game"
 import { GameLoading } from "@/components/games/game-loading"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -119,10 +120,15 @@ export default function GamePlayPage({
     )
   }
 
-  function renderGame() {
-    switch (game!.category) {
-      case "math":
-        return <MathGame game={game!} onComplete={handleGameComplete} />
+function renderGame() {
+  // Check for specific game types first
+  if (game!.id === "math-counting") {
+    return <CountingGame game={game!} onComplete={handleGameComplete} />
+  }
+  
+  switch (game!.category) {
+  case "math":
+  return <MathGame game={game!} onComplete={handleGameComplete} />
       case "science":
       case "identification":
       case "iq":
