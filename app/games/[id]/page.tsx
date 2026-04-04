@@ -23,6 +23,7 @@ import { DrumGame } from "@/components/games/drum-game"
 import { RhythmGame } from "@/components/games/rhythm-game"
 import { ColoringGame } from "@/components/games/coloring-game"
 import { PixelArtGame } from "@/components/games/pixel-art-game"
+import { TurtleGame } from "@/components/games/turtle-game"
 import { GameLoading } from "@/components/games/game-loading"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -210,6 +211,8 @@ function renderGame() {
         return <WordGame game={game!} onComplete={handleGameComplete} />
       
       // Coding games
+      case "code-turtle":
+        return <TurtleGame game={game!} onComplete={handleGameComplete} />
       case "code-blocks":
       case "code-sequence":
       case "code-loops":
