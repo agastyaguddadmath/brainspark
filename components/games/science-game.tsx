@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -14,41 +14,121 @@ interface ScienceQuestion {
   fact: string
 }
 
-const easyQuestions: ScienceQuestion[] = [
+// Question pools by game type
+const spaceQuestions: ScienceQuestion[] = [
   { question: "Which planet is closest to the Sun?", options: ["Venus", "Mercury", "Earth", "Mars"], correct: 1, fact: "Mercury orbits the Sun in just 88 Earth days!" },
+  { question: "Which planet is known as the Red Planet?", options: ["Jupiter", "Mars", "Saturn", "Venus"], correct: 1, fact: "Mars appears red because of iron oxide (rust) on its surface." },
+  { question: "What is the largest planet in our solar system?", options: ["Saturn", "Jupiter", "Neptune", "Uranus"], correct: 1, fact: "Jupiter is so big that 1,300 Earths could fit inside it!" },
+  { question: "What does the Moon orbit?", options: ["The Sun", "Earth", "Mars", "Saturn"], correct: 1, fact: "The Moon takes about 27 days to orbit Earth once." },
+  { question: "What is a shooting star?", options: ["A star falling", "A meteor", "A comet", "A planet"], correct: 1, fact: "Shooting stars are meteors burning up in Earth's atmosphere." },
+  { question: "How many planets are in our solar system?", options: ["7", "8", "9", "10"], correct: 1, fact: "Pluto was reclassified as a dwarf planet in 2006." },
+  { question: "What is the Sun made of?", options: ["Fire", "Rocks", "Hot gases", "Lava"], correct: 2, fact: "The Sun is made mostly of hydrogen and helium gases!" },
+  { question: "Which planet has rings?", options: ["Earth", "Saturn", "Mars", "Venus"], correct: 1, fact: "Saturn has the most visible rings, made of ice and rock." },
+]
+
+const labQuestions: ScienceQuestion[] = [
+  { question: "What is H2O?", options: ["Oxygen", "Carbon Dioxide", "Water", "Hydrogen"], correct: 2, fact: "Water is made of 2 hydrogen atoms and 1 oxygen atom." },
+  { question: "Which of these is NOT a state of matter?", options: ["Solid", "Liquid", "Gas", "Energy"], correct: 3, fact: "The three main states of matter are solid, liquid, and gas." },
+  { question: "What happens when ice melts?", options: ["It becomes gas", "It becomes water", "It disappears", "It gets colder"], correct: 1, fact: "Ice melts into liquid water at 0°C (32°F)." },
+  { question: "What is the chemical symbol for gold?", options: ["Go", "Gd", "Au", "Ag"], correct: 2, fact: "Au comes from the Latin word 'aurum' meaning gold." },
+  { question: "What color does litmus paper turn in acid?", options: ["Blue", "Red", "Green", "Yellow"], correct: 1, fact: "Acids turn blue litmus paper red, bases turn red litmus blue." },
+  { question: "What is the pH of pure water?", options: ["5", "7", "9", "0"], correct: 1, fact: "pH 7 is neutral. Below 7 is acidic, above 7 is basic." },
+  { question: "What does mixing baking soda and vinegar create?", options: ["Fire", "Bubbles", "Ice", "Nothing"], correct: 1, fact: "This reaction produces carbon dioxide gas - the bubbles!" },
+  { question: "What happens when water boils?", options: ["It freezes", "It becomes steam", "It changes color", "Nothing"], correct: 1, fact: "Water boils at 100°C (212°F) and turns into steam." },
+]
+
+const bodyQuestions: ScienceQuestion[] = [
+  { question: "What is the powerhouse of the cell?", options: ["Nucleus", "Mitochondria", "Ribosome", "Membrane"], correct: 1, fact: "Mitochondria produce energy (ATP) for cell functions." },
+  { question: "What organ pumps blood through your body?", options: ["Brain", "Lungs", "Heart", "Liver"], correct: 2, fact: "Your heart beats about 100,000 times every day!" },
+  { question: "How many bones are in the adult human body?", options: ["186", "206", "256", "306"], correct: 1, fact: "Babies are born with about 270 bones, some fuse as they grow." },
+  { question: "What organ lets you breathe?", options: ["Heart", "Stomach", "Lungs", "Brain"], correct: 2, fact: "Your lungs can hold about 6 liters of air!" },
+  { question: "What gas do humans breathe out?", options: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Helium"], correct: 2, fact: "We breathe in O2 and breathe out CO2 as a waste product." },
+  { question: "What is your largest organ?", options: ["Liver", "Brain", "Skin", "Heart"], correct: 2, fact: "Your skin weighs about 8 pounds and covers 20 square feet!" },
+  { question: "Where is food digested?", options: ["Heart", "Lungs", "Stomach", "Brain"], correct: 2, fact: "Your stomach uses acid strong enough to dissolve metal!" },
+  { question: "What connects muscles to bones?", options: ["Cartilage", "Tendons", "Veins", "Skin"], correct: 1, fact: "Tendons are very strong and can handle lots of force." },
+]
+
+const natureQuestions: ScienceQuestion[] = [
   { question: "What do plants need to grow?", options: ["Water, sunlight, and soil", "Only water", "Only sunlight", "Only air"], correct: 0, fact: "Plants use photosynthesis to convert sunlight into food!" },
   { question: "How many legs does a spider have?", options: ["6", "8", "10", "4"], correct: 1, fact: "Spiders are arachnids, not insects. Insects have 6 legs." },
   { question: "What is the biggest animal on Earth?", options: ["Elephant", "Giraffe", "Blue Whale", "Shark"], correct: 2, fact: "A blue whale's heart is as big as a small car!" },
-  { question: "Which of these is NOT a state of matter?", options: ["Solid", "Liquid", "Gas", "Energy"], correct: 3, fact: "The three main states of matter are solid, liquid, and gas." },
   { question: "What gives leaves their green color?", options: ["Water", "Chlorophyll", "Oxygen", "Sunlight"], correct: 1, fact: "Chlorophyll absorbs sunlight to help plants make food." },
-  { question: "What is H2O?", options: ["Oxygen", "Carbon Dioxide", "Water", "Hydrogen"], correct: 2, fact: "Water is made of 2 hydrogen atoms and 1 oxygen atom." },
-  { question: "Which season comes after summer?", options: ["Spring", "Winter", "Autumn/Fall", "Summer"], correct: 2, fact: "The Earth's tilt causes seasons as it orbits the Sun." },
-]
-
-const mediumQuestions: ScienceQuestion[] = [
-  { question: "What is the powerhouse of the cell?", options: ["Nucleus", "Mitochondria", "Ribosome", "Membrane"], correct: 1, fact: "Mitochondria produce energy (ATP) for cell functions." },
-  { question: "What gas do humans breathe out?", options: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Helium"], correct: 2, fact: "We breathe in O2 and breathe out CO2 as a waste product." },
-  { question: "What force keeps us on the ground?", options: ["Friction", "Magnetism", "Gravity", "Inertia"], correct: 2, fact: "Gravity pulls objects toward each other. Earth's gravity is 9.8 m/s." },
-  { question: "How many planets are in our solar system?", options: ["7", "8", "9", "10"], correct: 1, fact: "Pluto was reclassified as a dwarf planet in 2006." },
-  { question: "What organ pumps blood through your body?", options: ["Brain", "Lungs", "Heart", "Liver"], correct: 2, fact: "Your heart beats about 100,000 times every day!" },
-  { question: "What is the hardest natural substance?", options: ["Gold", "Iron", "Diamond", "Quartz"], correct: 2, fact: "Diamonds are made of carbon atoms arranged in a crystal structure." },
-  { question: "Which planet is known as the Red Planet?", options: ["Jupiter", "Mars", "Saturn", "Venus"], correct: 1, fact: "Mars appears red because of iron oxide (rust) on its surface." },
   { question: "What do bees collect from flowers?", options: ["Water", "Nectar", "Seeds", "Leaves"], correct: 1, fact: "Bees turn nectar into honey and pollinate 80% of flowering plants." },
+  { question: "What animal is the King of the Jungle?", options: ["Tiger", "Elephant", "Lion", "Gorilla"], correct: 2, fact: "Lions live in groups called prides and can run 50 mph!" },
+  { question: "What do butterflies start life as?", options: ["Eggs", "Butterflies", "Bees", "Flowers"], correct: 0, fact: "Butterflies go through metamorphosis: egg, caterpillar, pupa, butterfly!" },
+  { question: "Where do polar bears live?", options: ["Antarctica", "Africa", "Arctic", "Australia"], correct: 2, fact: "Polar bears live in the Arctic and are excellent swimmers!" },
 ]
 
-const hardQuestions: ScienceQuestion[] = [
+const chemistryQuestions: ScienceQuestion[] = [
   { question: "What is the speed of light approximately?", options: ["300,000 km/s", "150,000 km/s", "500,000 km/s", "100,000 km/s"], correct: 0, fact: "Light travels at 299,792,458 meters per second in a vacuum." },
-  { question: "What is the chemical symbol for gold?", options: ["Go", "Gd", "Au", "Ag"], correct: 2, fact: "Au comes from the Latin word 'aurum' meaning gold." },
-  { question: "What is the pH of pure water?", options: ["5", "7", "9", "0"], correct: 1, fact: "pH 7 is neutral. Below 7 is acidic, above 7 is basic." },
   { question: "Which type of rock is formed from cooled magma?", options: ["Sedimentary", "Metamorphic", "Igneous", "Fossil"], correct: 2, fact: "Igneous comes from the Latin word 'ignis' meaning fire." },
-  { question: "What is the smallest unit of life?", options: ["Atom", "Cell", "Molecule", "Organ"], correct: 1, fact: "Cells are the basic building blocks of all living things." },
   { question: "What element makes up most of Earth's atmosphere?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"], correct: 2, fact: "Nitrogen makes up about 78% of Earth's atmosphere." },
   { question: "What is the process by which liquid becomes gas?", options: ["Condensation", "Evaporation", "Sublimation", "Precipitation"], correct: 1, fact: "Evaporation occurs when molecules gain enough energy to escape." },
-  { question: "How many bones are in the adult human body?", options: ["186", "206", "256", "306"], correct: 1, fact: "Babies are born with about 270 bones, some fuse as they grow." },
+  { question: "What is the hardest natural substance?", options: ["Gold", "Iron", "Diamond", "Quartz"], correct: 2, fact: "Diamonds are made of carbon atoms arranged in a crystal structure." },
+  { question: "What force keeps us on the ground?", options: ["Friction", "Magnetism", "Gravity", "Inertia"], correct: 2, fact: "Gravity pulls objects toward each other. Earth's gravity is 9.8 m/s²." },
+  { question: "What is the chemical formula for table salt?", options: ["NaCl", "H2O", "CO2", "O2"], correct: 0, fact: "Salt is sodium chloride - one sodium atom bonded to one chlorine atom." },
+  { question: "What is absolute zero temperature?", options: ["-273°C", "-100°C", "0°C", "-459°C"], correct: 0, fact: "At absolute zero, all molecular motion stops completely!" },
 ]
 
-function getQuestions(difficulty: Game["difficulty"]): ScienceQuestion[] {
-  const pool = difficulty === "easy" ? easyQuestions : difficulty === "medium" ? mediumQuestions : hardQuestions
+const iqQuestions: ScienceQuestion[] = [
+  { question: "What comes next: 2, 4, 8, 16, ?", options: ["20", "24", "32", "64"], correct: 2, fact: "Each number doubles - this is exponential growth!" },
+  { question: "If all Bloops are Razzies and all Razzies are Lazzies, are all Bloops definitely Lazzies?", options: ["Yes", "No", "Maybe", "Cannot tell"], correct: 0, fact: "This is transitive logic - if A=B and B=C, then A=C!" },
+  { question: "Which shape has the most sides: Pentagon, Hexagon, or Octagon?", options: ["Pentagon", "Hexagon", "Octagon", "They're equal"], correct: 2, fact: "Octagon has 8 sides, hexagon has 6, pentagon has 5." },
+  { question: "Complete: Circle is to sphere as square is to ?", options: ["Rectangle", "Cube", "Triangle", "Pyramid"], correct: 1, fact: "A cube is the 3D version of a square!" },
+  { question: "What is 25% of 80?", options: ["15", "20", "25", "40"], correct: 1, fact: "25% means one quarter - divide by 4!" },
+  { question: "Which number doesn't belong: 3, 5, 7, 9, 11?", options: ["3", "5", "9", "11"], correct: 2, fact: "9 is not prime - it can be divided by 3!" },
+  { question: "If you rearrange CIFAIPC, you get the name of a...?", options: ["Country", "Ocean", "City", "Animal"], correct: 1, fact: "PACIFIC - the largest ocean on Earth!" },
+  { question: "A clock shows 3:15. What is the angle between the hour and minute hands?", options: ["0°", "7.5°", "15°", "90°"], correct: 1, fact: "The hour hand moves 0.5° per minute!" },
+]
+
+const identificationQuestions: ScienceQuestion[] = [
+  { question: "Which color do you get mixing red and blue?", options: ["Green", "Purple", "Orange", "Brown"], correct: 1, fact: "Red and blue are primary colors that make purple!" },
+  { question: "How many sides does a hexagon have?", options: ["5", "6", "7", "8"], correct: 1, fact: "Hex means six - think of hexagons in a beehive!" },
+  { question: "Which animal says 'moo'?", options: ["Dog", "Cat", "Cow", "Pig"], correct: 2, fact: "Cows moo to communicate with other cows and their calves!" },
+  { question: "What shape is a stop sign?", options: ["Circle", "Square", "Triangle", "Octagon"], correct: 3, fact: "Stop signs have 8 sides - that's an octagon!" },
+  { question: "Which is bigger: a mouse or an elephant?", options: ["Mouse", "Elephant", "Same size", "Cannot tell"], correct: 1, fact: "African elephants can weigh over 6 tons!" },
+  { question: "What color is a banana when it's ripe?", options: ["Green", "Yellow", "Red", "Blue"], correct: 1, fact: "Bananas turn yellow as they ripen due to chlorophyll breaking down." },
+  { question: "Which season has falling leaves?", options: ["Spring", "Summer", "Autumn", "Winter"], correct: 2, fact: "Trees lose leaves in autumn to conserve water for winter." },
+  { question: "How many wheels does a bicycle have?", options: ["1", "2", "3", "4"], correct: 1, fact: "The word bicycle comes from 'bi' (two) and 'cycle' (wheel)!" },
+]
+
+function getQuestions(gameId: string, difficulty: Game["difficulty"]): ScienceQuestion[] {
+  let pool: ScienceQuestion[]
+  
+  switch (gameId) {
+    case "sci-space":
+      pool = spaceQuestions
+      break
+    case "sci-lab":
+      pool = labQuestions
+      break
+    case "sci-body":
+      pool = bodyQuestions
+      break
+    case "sci-nature":
+      pool = natureQuestions
+      break
+    case "sci-chemistry":
+      pool = chemistryQuestions
+      break
+    case "iq-logic":
+    case "iq-memory":
+    case "iq-spatial":
+      pool = iqQuestions
+      break
+    case "id-colors":
+    case "id-animals":
+    case "id-patterns":
+    case "id-flags":
+      pool = identificationQuestions
+      break
+    default:
+      // Fallback to difficulty-based selection
+      if (difficulty === "easy") pool = [...natureQuestions, ...spaceQuestions]
+      else if (difficulty === "medium") pool = [...labQuestions, ...bodyQuestions]
+      else pool = [...chemistryQuestions, ...iqQuestions]
+  }
+  
   return [...pool].sort(() => Math.random() - 0.5).slice(0, 8)
 }
 
@@ -58,12 +138,15 @@ interface ScienceGameProps {
 }
 
 export function ScienceGame({ game, onComplete }: ScienceGameProps) {
-  const [questions] = useState(() => getQuestions(game.difficulty))
+  const [questions] = useState(() => getQuestions(game.id, game.difficulty))
   const [currentQ, setCurrentQ] = useState(0)
   const [score, setScore] = useState(0)
   const [selected, setSelected] = useState<number | null>(null)
   const [finished, setFinished] = useState(false)
   const [showFact, setShowFact] = useState(false)
+  const hasCompletedRef = useRef(false)
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
 
   const handleAnswer = useCallback(
     (index: number) => {
@@ -87,8 +170,11 @@ export function ScienceGame({ game, onComplete }: ScienceGameProps) {
   )
 
   useEffect(() => {
-    if (finished) onComplete(score, questions.length * 12)
-  }, [finished, score, questions.length, onComplete])
+    if (finished && !hasCompletedRef.current) {
+      hasCompletedRef.current = true
+      onCompleteRef.current(score, questions.length * 12)
+    }
+  }, [finished, score, questions.length])
 
   if (finished) {
     const percentage = Math.round((score / (questions.length * 12)) * 100)

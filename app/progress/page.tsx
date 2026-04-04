@@ -1,5 +1,5 @@
 "use client"
-
+// Progress tracking page - shows user game history, IQ scores, and performance charts
 import { useAuth } from "@/lib/auth-context"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"

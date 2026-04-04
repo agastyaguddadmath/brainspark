@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -52,6 +52,9 @@ export function ArtGame({ game, onComplete }: ArtGameProps) {
   const [strokes, setStrokes] = useState(0)
   const [colorsUsed, setColorsUsed] = useState<Set<string>>(new Set())
   const lastPos = useRef<{ x: number; y: number } | null>(null)
+  const hasCompletedRef = useRef(false)
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -119,6 +122,9 @@ export function ArtGame({ game, onComplete }: ArtGameProps) {
   }
 
   const submitArt = () => {
+    if (hasCompletedRef.current) return
+    hasCompletedRef.current = true
+    
     // Score based on effort (strokes) and creativity (colors used)
     const strokeScore = Math.min(strokes / 50, 1) * 50
     const colorScore = Math.min(colorsUsed.size / 4, 1) * 30
@@ -127,7 +133,7 @@ export function ArtGame({ game, onComplete }: ArtGameProps) {
     const totalScore = Math.min(calculatedScore, game.maxScore)
     
     setIsCompleted(true)
-    onComplete(totalScore, game.maxScore)
+    onCompleteRef.current(totalScore, game.maxScore)
   }
 
   const downloadArt = () => {

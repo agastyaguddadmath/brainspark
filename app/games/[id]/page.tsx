@@ -12,6 +12,18 @@ import { CodingGame } from "@/components/games/coding-game"
 import { ArtGame } from "@/components/games/art-game"
 import { MusicGame } from "@/components/games/music-game"
 import { GeographyGame } from "@/components/games/geography-game"
+import { CountingGame } from "@/components/games/counting-game"
+import { ShapeExplorerGame } from "@/components/games/shape-explorer-game"
+import { ColorMatchGame } from "@/components/games/color-match-game"
+import { AnimalSafariGame } from "@/components/games/animal-safari-game"
+import { PatternFinderGame } from "@/components/games/pattern-finder-game"
+import { MemoryGame } from "@/components/games/memory-game"
+import { PianoGame } from "@/components/games/piano-game"
+import { DrumGame } from "@/components/games/drum-game"
+import { RhythmGame } from "@/components/games/rhythm-game"
+import { ColoringGame } from "@/components/games/coloring-game"
+import { PixelArtGame } from "@/components/games/pixel-art-game"
+import { TurtleGame } from "@/components/games/turtle-game"
 import { GameLoading } from "@/components/games/game-loading"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -119,26 +131,119 @@ export default function GamePlayPage({
     )
   }
 
-  function renderGame() {
-    switch (game!.category) {
-      case "math":
+function renderGame() {
+    const gameId = game!.id
+    
+    // Route to specific game components based on game ID
+    switch (gameId) {
+      // Math games
+      case "math-counting":
+        return <CountingGame game={game!} onComplete={handleGameComplete} />
+      case "math-geometry":
+        return <ShapeExplorerGame game={game!} onComplete={handleGameComplete} />
+      case "math-addition":
+      case "math-multiplication":
+      case "math-fractions":
+      case "math-algebra":
         return <MathGame game={game!} onComplete={handleGameComplete} />
-      case "science":
-      case "identification":
-      case "iq":
-        return <ScienceGame game={game!} onComplete={handleGameComplete} />
-      case "language":
-        return <WordGame game={game!} onComplete={handleGameComplete} />
-      case "coding":
-        return <CodingGame game={game!} onComplete={handleGameComplete} />
-      case "art":
-        return <ArtGame game={game!} onComplete={handleGameComplete} />
-      case "music":
-        return <MusicGame game={game!} onComplete={handleGameComplete} />
-      case "geography":
+      
+      // Identification games
+      case "id-colors":
+        return <ColorMatchGame game={game!} onComplete={handleGameComplete} />
+      case "id-animals":
+        return <AnimalSafariGame game={game!} onComplete={handleGameComplete} />
+      case "id-patterns":
+        return <PatternFinderGame game={game!} onComplete={handleGameComplete} />
+      case "id-flags":
         return <GeographyGame game={game!} onComplete={handleGameComplete} />
+      
+      // IQ games
+      case "iq-memory":
+        return <MemoryGame game={game!} onComplete={handleGameComplete} />
+      case "iq-logic":
+      case "iq-spatial":
+        return <ScienceGame game={game!} onComplete={handleGameComplete} />
+      
+      // Music games
+      case "music-piano":
+        return <PianoGame game={game!} onComplete={handleGameComplete} />
+      case "music-drums":
+        return <DrumGame game={game!} onComplete={handleGameComplete} />
+      case "music-rhythm":
+        return <RhythmGame game={game!} onComplete={handleGameComplete} />
+      case "music-notes":
+      case "music-composer":
+        return <MusicGame game={game!} onComplete={handleGameComplete} />
+      
+      // Art games
+      case "art-coloring":
+        return <ColoringGame game={game!} onComplete={handleGameComplete} />
+      case "art-pixel":
+        return <PixelArtGame game={game!} onComplete={handleGameComplete} />
+      case "art-drawing":
+      case "art-animation":
+        return <ArtGame game={game!} onComplete={handleGameComplete} />
+      
+      // Geography games
+      case "geo-capitals":
+      case "geo-flags":
+      case "geo-continents":
+      case "geo-landmarks":
+      case "geo-oceans":
+      case "geo-countries":
+      case "geo-mountains":
+        return <GeographyGame game={game!} onComplete={handleGameComplete} />
+      
+      // Science games
+      case "sci-space":
+      case "sci-lab":
+      case "sci-body":
+      case "sci-nature":
+      case "sci-chemistry":
+        return <ScienceGame game={game!} onComplete={handleGameComplete} />
+      
+      // Language games
+      case "lang-words":
+      case "lang-phonics":
+      case "lang-spelling":
+      case "lang-story":
+      case "lang-reading":
+        return <WordGame game={game!} onComplete={handleGameComplete} />
+      
+      // Coding games
+      case "code-turtle":
+        return <TurtleGame game={game!} onComplete={handleGameComplete} />
+      case "code-blocks":
+      case "code-sequence":
+      case "code-loops":
+      case "code-debug":
+      case "code-game":
+        return <CodingGame game={game!} onComplete={handleGameComplete} />
+      
+      // Fallback to category-based routing
       default:
-        return <MathGame game={game!} onComplete={handleGameComplete} />
+        switch (game!.category) {
+          case "math":
+            return <MathGame game={game!} onComplete={handleGameComplete} />
+          case "science":
+            return <ScienceGame game={game!} onComplete={handleGameComplete} />
+          case "identification":
+            return <ColorMatchGame game={game!} onComplete={handleGameComplete} />
+          case "iq":
+            return <ScienceGame game={game!} onComplete={handleGameComplete} />
+          case "language":
+            return <WordGame game={game!} onComplete={handleGameComplete} />
+          case "coding":
+            return <CodingGame game={game!} onComplete={handleGameComplete} />
+          case "art":
+            return <ArtGame game={game!} onComplete={handleGameComplete} />
+          case "music":
+            return <MusicGame game={game!} onComplete={handleGameComplete} />
+          case "geography":
+            return <GeographyGame game={game!} onComplete={handleGameComplete} />
+          default:
+            return <MathGame game={game!} onComplete={handleGameComplete} />
+        }
     }
   }
 
