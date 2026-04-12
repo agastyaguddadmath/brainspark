@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Nunito, Space_Grotesk } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
-import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Toaster } from '@/components/ui/sonner'
 import { AuthProvider } from '@/lib/auth-context'
 import './globals.css'
@@ -60,7 +59,6 @@ export default function RootLayout({
           <Toaster />
         </AuthProvider>
         <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   )
