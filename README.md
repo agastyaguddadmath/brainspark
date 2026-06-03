@@ -79,4 +79,4 @@ GitHub
 
 Repository: [github.com/agastyaguddadmath/brainspark](https://github.com/agastyaguddadmath/brainspark)
 
-License
+Mit License
